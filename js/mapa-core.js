@@ -306,6 +306,19 @@ $('btnMyLoc').addEventListener('click', function() {
 map.on('click', function() { if (window.innerWidth >= 769) closeInfoPanel(); else closeBS(); });
 
 /* ════════════════════════════════════════════════════
+   FOOTER STATS & ACERCA DE
+════════════════════════════════════════════════════ */
+function updateFooterStats() {
+  var totalCarreras = 0, totalMaestros = 0;
+  edificios.forEach(function(e) { totalCarreras += e.carreras.length; totalMaestros += e.maestros.length; });
+  var el = document.getElementById('footer-stats');
+  if (el) el.innerHTML = '<i class="fa-solid fa-building-columns"></i> ' + edificios.length + ' edificios · <i class="fa-solid fa-graduation-cap"></i> ' + totalCarreras + ' carreras · <i class="fa-solid fa-chalkboard-user"></i> ' + totalMaestros + ' maestros · <i class="fa-solid fa-bus"></i> ' + rutas.length + ' rutas';
+}
+updateFooterStats();
+
+function openAcercaDe() { document.getElementById('acercaOverlay').classList.add('open'); }
+
+/* ════════════════════════════════════════════════════
    URL PARAM & INIT
 ════════════════════════════════════════════════════ */
 (function() { var p = new URLSearchParams(location.search), id = p.get('edificio'); if (id) setTimeout(function() { selectEdificio(id); }, 1600); })();
