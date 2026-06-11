@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>UTE Escobedo – Mapa Universitario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/shared.css"/>
+  <style>
+    body {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--azul);
+      overflow: hidden;
+    }
+
+    /* ── LADO IZQUIERDO – Branding ── */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 30% 50%, rgba(244,130,31,.12) 0%, transparent 70%);
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border: 1px solid rgba(244,130,31,.1);
+      border-radius: 50%;
+      bottom: -100px; right: -100px;
+    }
+    .brand-area { position: relative; z-index: 1; }
+    .brand-logo {
+      width: 64px; height: 64px; border-radius: 14px;
+      background: var(--naranja);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 900; color: #fff;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 24px rgba(244,130,31,.35);
+    }
+    .brand-title {
+      font-size: 2.2rem; font-weight: 800; color: #fff;
+      line-height: 1.1; margin-bottom: .5rem;
+    }
+    .brand-title span { color: var(--naranja); }
+    .brand-sub { font-size: .9rem; color: rgba(255,255,255,.55); line-height: 1.6; max-width: 360px; margin-bottom: 2.5rem; }
+
+    /* Features list */
+    .features { display: flex; flex-direction: column; gap: .75rem; }
+    .feat-item {
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .82rem; color: rgba(255,255,255,.7);
+    }
+    .feat-ico {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(244,130,31,.15); border: 1px solid rgba(244,130,31,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; flex-shrink: 0; color: var(--naranja);
+    }
+
+    /* ── LADO DERECHO – Login form ── */
+    .right-panel {
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .login-box { width: 100%; max-width: 380px; }
+    .login-heading { font-size: 1.4rem; font-weight: 800; color: var(--azul); margin-bottom: .3rem; }
+    .login-sub     { font-size: .82rem; color: var(--gris-400); margin-bottom: 1.75rem; }
+
+    .error-msg {
+      background: #FFEBEE; border: 1px solid #FFCDD2; border-radius: var(--radius-sm);
+      padding: .6rem .9rem; font-size: .77rem; color: var(--rojo);
+      margin-bottom: .9rem; display: none; align-items: center; gap: .4rem;
+    }
+    .error-msg.show { display: flex; }
+
+    .divider {
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .71rem; color: var(--gris-400); margin: 1.25rem 0;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid var(--gris-200); }
+
+    .visitor-btn {
+      width: 100%; padding: .65rem;
+      background: var(--gris-50); border: 1.5px solid var(--gris-200);
+      border-radius: var(--radius-sm); font-size: .82rem; font-weight: 600;
+      color: var(--gris-700); cursor: pointer; transition: all var(--transition);
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      font-family: var(--font);
+    }
+    .visitor-btn:hover { border-color: var(--naranja); color: var(--naranja); background: var(--naranja-bg); }
+
+    .demo-hint {
+      margin-top: 1.5rem;
+      background: var(--gris-50); border: 1px solid var(--gris-200);
+      border-radius: var(--radius-sm); padding: .85rem 1rem; font-size: .72rem;
+    }
+    .demo-hint strong { color: var(--azul); display: block; margin-bottom: .4rem; }
+    .demo-hint strong i { transition: transform .2s ease; }
+    .demo-hint.expanded strong i.fa-chevron-down { transform: rotate(180deg); }
+    .demo-rows { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+    .demo-hint.expanded .demo-rows { max-height: 120px; }
+    .demo-row { display: flex; justify-content: space-between; padding: .2rem 0; color: var(--gris-600); }
+    .demo-row code { background: var(--gris-200); border-radius: 4px; padding: 1px 5px; font-size: .68rem; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- IZQUIERDA: Branding -->
+<div class="left-panel">
+  <div class="brand-area">
+    <div class="brand-logo">UTE</div>
+    <div class="brand-title">Mapa<br><span>Universitario</span></div>
+    <div class="brand-sub">
+      Explora el campus de la Universidad Tecnológica General Mariano Escobedo
+      de forma interactiva: edificios, rutas de transporte y mucho más.
+    </div>
+
+    <div class="features">
+      <div class="feat-item">
+        <div class="feat-ico"><i class="fa-solid fa-map-location-dot"></i></div>
+        Mapa interactivo con todos los edificios del campus (D1–D8, T1–T3)
+      </div>
+      <div class="feat-item">
+        <div class="feat-ico"><i class="fa-solid fa-bus"></i></div>
+        Rutas de camiones con horarios, paradas y métodos de pago
+      </div>
+      <div class="feat-item">
+        <div class="feat-ico"><i class="fa-solid fa-building-columns"></i></div>
+        Info de carreras, maestros y trámites por edificio
+      </div>
+      <div class="feat-item">
+        <div class="feat-ico"><i class="fa-solid fa-gear"></i></div>
+        Panel de administración para gestionar el campus
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DERECHA: Login -->
+<div class="right-panel">
+  <div class="login-box">
+    <div class="login-heading">Bienvenido <i class="fa-solid fa-hand-peace" style="color:var(--naranja);font-size:1.2rem"></i></div>
+    <div class="login-sub">Inicia sesión con tu correo institucional o entra como visitante.</div>
+
+    <div class="error-msg" id="errMsg"><i class="fa-solid fa-triangle-exclamation"></i> <span id="errTxt">Credenciales incorrectas.</span></div>
+
+    <div class="form-group">
+      <label class="form-label"><i class="fa-solid fa-envelope"></i> Correo institucional</label>
+      <input id="email" type="email" class="form-control" placeholder="usuario@ute.edu.mx" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><i class="fa-solid fa-lock"></i> Contraseña</label>
+      <input id="password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.7rem" onclick="doLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i> &nbsp;Iniciar sesión
+    </button>
+
+    <div class="divider">o continúa sin cuenta</div>
+
+    <button class="visitor-btn" onclick="doVisitor()">
+      <i class="fa-solid fa-eye"></i> &nbsp;Entrar como Visitante
+    </button>
+
+    <!-- Hint de demo (colapsable para no exponer credenciales) -->
+    <div class="demo-hint" id="demoHint">
+      <strong style="cursor:pointer;user-select:none" onclick="document.getElementById('demoHint').classList.toggle('expanded')">
+        <i class="fa-solid fa-key"></i> Cuentas de demostración <i class="fa-solid fa-chevron-down" style="font-size:.6rem;margin-left:.3rem"></i>
+      </strong>
+      <div class="demo-rows">
+        <div class="demo-row"><span>Administrador</span><code>admin@ute.edu.mx / admin123</code></div>
+        <div class="demo-row"><span>Alumno</span><code>maria@ute.edu.mx / alumno123</code></div>
+        <div class="demo-row"><span>Empleado</span><code>carlos@ute.edu.mx / emp123</code></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+  // Si ya hay sesión activa, redirigir
+  const _existing = Auth.getSession();
+  if (_existing) {
+    window.location.href = _existing.role === 'admin' ? 'admin/index.html' : 'pages/mapa.html';
+  }
+
+  function showErr(msg) {
+    const el = document.getElementById('errMsg');
+    document.getElementById('errTxt').textContent = msg;
+    el.classList.add('show');
+  }
+
+  function doLogin() {
+    const email = document.getElementById('email').value.trim();
+    const pass  = document.getElementById('password').value;
+    document.getElementById('errMsg').classList.remove('show');
+
+    if (!email || !pass) { showErr('Completa todos los campos.'); return; }
+
+    const res = Auth.login(email, pass);
+    if (!res.ok) { showErr(res.msg); return; }
+
+    // Redirigir según rol
+    if (res.user.role === 'admin') window.location.href = 'admin/index.html';
+    else window.location.href = 'pages/mapa.html';
+  }
+
+  function doVisitor() {
+    Auth.loginAsVisitor();
+    window.location.href = 'pages/mapa.html';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

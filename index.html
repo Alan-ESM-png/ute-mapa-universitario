@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es" class="">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="description" content="Mapa interactivo del campus UTE Escobedo – Explora edificios, rutas de transporte y más."/>
+  <meta name="theme-color" content="#F4821F"/>
+  <title>UTE Escobedo – Mapa Universitario Interactivo</title>
+
+  <!-- Preloads: recursos críticos -->
+  <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style"/>
+  <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" as="script"/>
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style"/>
+  <!-- Styles -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/shared.css"/>
+  <link rel="stylesheet" href="css/mapa.css"/>
+</head>
+<body>
+<noscript><div style="background:#C62828;color:#fff;text-align:center;padding:1rem;font-family:sans-serif;position:fixed;top:0;left:0;right:0;z-index:99999">⚠️ JavaScript está desactivado. Esta aplicación requiere JavaScript para funcionar.</div></noscript>
+
+<!-- ══════════════════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">UTE</div>
+    <div class="nav-brand-text">
+      <span class="main">Universidad Tecnológica</span>
+      <span class="sub">Gral. Mariano Escobedo</span>
+    </div>
+  </div>
+
+  <div class="nav-center">
+    <a href="index.html" class="nav-link active"><i class="fa-solid fa-map"></i> <span>Mapa</span></a>
+    <a href="pages/rutas.html" class="nav-link"><i class="fa-solid fa-bus"></i> <span>Rutas</span></a>
+  </div>
+
+  <div class="nav-right">
+    <!-- Layer dropdown -->
+    <div style="position:relative" id="layerWrap">
+      <button class="btn-layers" id="btnLayers" onclick="toggleLayerDrop()">
+        <i class="fa-solid fa-layer-group"></i> <span>Vista</span> <i class="fa-solid fa-chevron-down" style="font-size:.55rem"></i>
+      </button>
+      <div class="layer-drop" id="layerDrop">
+        <div class="layer-drop-title">Tipo de mapa</div>
+        <div class="layer-opt active" data-l="carto" onclick="switchLayer('carto')">
+          <div class="layer-ico"><i class="fa-solid fa-map"></i></div>
+          <div><div class="layer-name">Mapa limpio</div><div class="layer-desc">CartoDB · Predeterminado</div></div>
+          <span class="layer-check"><i class="fa-solid fa-check"></i></span>
+        </div>
+        <div class="layer-opt" data-l="gStreet" onclick="switchLayer('gStreet')">
+          <div class="layer-ico"><i class="fa-solid fa-road"></i></div>
+          <div><div class="layer-name">Google Calles</div><div class="layer-desc">Experimental · puede fallar</div></div>
+          <span class="layer-check"><i class="fa-solid fa-check"></i></span>
+        </div>
+        <div class="layer-opt" data-l="gSat" onclick="switchLayer('gSat')">
+          <div class="layer-ico"><i class="fa-solid fa-satellite"></i></div>
+          <div><div class="layer-name">Google Satélite</div><div class="layer-desc">Experimental · puede fallar</div></div>
+          <span class="layer-check"><i class="fa-solid fa-check"></i></span>
+        </div>
+        <div class="layer-opt" data-l="gHybrid" onclick="switchLayer('gHybrid')">
+          <div class="layer-ico"><i class="fa-solid fa-earth-americas"></i></div>
+          <div><div class="layer-name">Google Híbrido</div><div class="layer-desc">Experimental · puede fallar</div></div>
+          <span class="layer-check"><i class="fa-solid fa-check"></i></span>
+        </div>
+        <div class="layer-opt" data-l="gTerrain" onclick="switchLayer('gTerrain')">
+          <div class="layer-ico"><i class="fa-solid fa-mountain"></i></div>
+          <div><div class="layer-name">Google Terreno</div><div class="layer-desc">Experimental · puede fallar</div></div>
+          <span class="layer-check"><i class="fa-solid fa-check"></i></span>
+        </div>
+        <div class="layer-opt" data-l="osm" onclick="switchLayer('osm')">
+          <div class="layer-ico"><i class="fa-solid fa-globe"></i></div>
+          <div><div class="layer-name">OpenStreetMap</div><div class="layer-desc">Respaldo libre</div></div>
+          <span class="layer-check"><i class="fa-solid fa-check"></i></span>
+        </div>
+        <div class="layer-opt" data-l="dark" onclick="switchLayer('dark')">
+          <div class="layer-ico"><i class="fa-solid fa-moon"></i></div>
+          <div><div class="layer-name">Modo oscuro</div><div class="layer-desc">CartoDB Dark Matter</div></div>
+          <span class="layer-check"><i class="fa-solid fa-check"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark mode -->
+    <button class="btn-icon-nav" id="btnDark" onclick="toggleDark()" title="Modo oscuro">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <!-- VISITOR: Login button -->
+    <button class="btn-login-nav" id="btnLoginNav" onclick="openLoginModal()">
+      <i class="fa-solid fa-right-to-bracket"></i> <span>Iniciar sesión</span>
+    </button>
+
+    <!-- LOGGED IN: User badge -->
+    <div class="u-wrap" id="uWrap" style="display:none">
+      <div class="u-badge" id="uBadge" onclick="toggleUDrop()">
+        <div class="u-av" id="uAv">?</div>
+        <div><div class="u-name" id="uNm">...</div><div class="u-role" id="uRl">...</div></div>
+        <span class="u-arr" id="uArr"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+      <div class="u-drop" id="uDrop">
+        <div class="u-drop-head">
+          <div class="u-drop-av" id="udAv">?</div>
+          <div><div class="u-drop-name" id="udNm">...</div><div class="u-drop-email" id="udEm">...</div></div>
+        </div>
+        <div class="u-div"></div>
+        <div class="u-item" id="udPerfil" onclick="location.href='pages/perfil.html'"><i class="fa-solid fa-user"></i> Mi Perfil</div>
+        <div class="u-item" id="udAdmin" onclick="location.href='admin/index.html'" style="display:none"><i class="fa-solid fa-gear"></i> Panel Admin</div>
+        <div class="u-div"></div>
+        <div class="u-item danger" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     LOGIN MODAL
+══════════════════════════════════════════════════════ -->
+<div class="login-modal-overlay" id="loginModalOverlay" onclick="closeLoginModal(event)">
+  <div class="login-modal">
+    <div class="login-modal-head">
+      <div class="login-modal-logo">UTE</div>
+      <div class="login-modal-title">Bienvenido</div>
+      <div class="login-modal-sub">Inicia sesión con tu correo institucional</div>
+    </div>
+    <div class="login-modal-body">
+      <div class="login-error" id="loginError"><i class="fa-solid fa-triangle-exclamation"></i> <span id="loginErrorTxt">Credenciales incorrectas.</span></div>
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-envelope"></i> Correo institucional</label>
+        <input id="loginEmail" type="email" class="form-control" placeholder="usuario@ute.edu.mx" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-lock"></i> Contraseña</label>
+        <input id="loginPassword" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.65rem" onclick="doLoginFromModal()">
+        <i class="fa-solid fa-right-to-bracket"></i> &nbsp;Iniciar sesión
+      </button>
+      <div class="login-divider">o continúa sin cuenta</div>
+      <button class="login-visitor-btn" onclick="closeLoginModal()">
+        <i class="fa-solid fa-eye"></i> &nbsp;Continuar como Visitante
+      </button>
+      <div class="login-demo-hint">
+        <strong><i class="fa-solid fa-key"></i> Cuentas de demostración</strong>
+        <div class="demo-row"><span>Administrador</span><code>admin@ute.edu.mx / admin123</code></div>
+        <div class="demo-row"><span>Alumno</span><code>maria@ute.edu.mx / alumno123</code></div>
+        <div class="demo-row"><span>Empleado</span><code>carlos@ute.edu.mx / emp123</code></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     LIVE SEARCH OVERLAY
+══════════════════════════════════════════════════════ -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearchOverlay(event)">
+  <div class="search-box-big" id="searchBoxBig">
+    <div class="search-input-row">
+      <span class="search-big-ic"><i class="fa-solid fa-magnifying-glass"></i></span>
+      <input class="search-big-input" id="searchBigInput" placeholder="Buscar edificio, carrera, maestro o trámite…" autocomplete="off" spellcheck="false"/>
+      <div class="search-big-close" onclick="closeSearch()"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-hint">
+        <div class="sh-ico"><i class="fa-solid fa-building-columns"></i></div>
+        <p>Escribe para buscar edificios,<br>carreras o maestros</p>
+        <div class="sh-shortcuts">
+          <span><span class="kbd">↑↓</span> navegar</span>
+          <span><span class="kbd">Enter</span> seleccionar</span>
+          <span><span class="kbd">Esc</span> cerrar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     APP LAYOUT
+══════════════════════════════════════════════════════ -->
+<div class="app" id="app">
+
+  <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" title="Colapsar panel">
+    <span class="sb-toggle-ic"><i class="fa-solid fa-chevron-left"></i></span>
+  </button>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-label"><i class="fa-solid fa-location-dot"></i> Edificios y Docencias</div>
+      <div class="sw" onclick="openSearch()">
+        <span class="sw-ic"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input id="searchTrigger" type="text" placeholder="Buscar carrera, maestro, trámite…" readonly style="cursor:pointer"/>
+      </div>
+    </div>
+    <div class="sb-filters">
+      <span class="fchip active" data-f="all">Todos</span>
+      <span class="fchip" data-f="docencia"><i class="fa-solid fa-graduation-cap"></i> Docencias</span>
+      <span class="fchip" data-f="taller"><i class="fa-solid fa-wrench"></i> Talleres</span>
+      <span class="fchip" data-f="servicio"><i class="fa-solid fa-building"></i> Servicios</span>
+    </div>
+    <div class="t-row" id="rutasToggle" onclick="toggleRutas()">
+      <span class="t-label"><i class="fa-solid fa-bus"></i> Ver rutas de camiones</span>
+      <div class="sw-pill"></div>
+    </div>
+    <div class="ru-sub" id="rutasSub"></div>
+    <div class="admin-row" id="adminRow" style="display:none" onclick="toggleAdminMode()">
+      <span class="admin-row-label" id="adminLbl"><i class="fa-solid fa-pen-to-square"></i> Modo Editor: OFF</span>
+      <div class="sw-pill" id="adminPill"></div>
+    </div>
+    <div class="sb-recents" id="sbRecents" style="display:none">
+      <div class="sb-recents-title"><i class="fa-solid fa-clock-rotate-left"></i> Recientes</div>
+      <div class="recent-chips" id="recentChips"></div>
+    </div>
+    <ul class="e-list" id="eList">
+      <li class="skel-item"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line"></div><div class="skel-line short"></div></div></li>
+      <li class="skel-item"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line"></div><div class="skel-line short"></div></div></li>
+      <li class="skel-item"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line"></div><div class="skel-line short"></div></div></li>
+      <li class="skel-item"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line"></div><div class="skel-line short"></div></div></li>
+      <li class="skel-item"><div class="skel-badge"></div><div class="skel-lines"><div class="skel-line"></div><div class="skel-line short"></div></div></li>
+    </ul>
+  </aside>
+
+  <!-- MAP -->
+  <div class="map-wrap">
+    <div id="map-skeleton">
+      <div class="map-skel-spinner"></div>
+      <div class="map-skel-text">Cargando mapa del campus…</div>
+    </div>
+    <div class="drag-hint" id="dragHint">
+      <i class="fa-solid fa-arrows-up-down-left-right"></i> Modo Editor activo — Arrastra los marcadores para mover edificios
+    </div>
+    <div id="map"></div>
+    <button class="fab" id="btnCenter"><i class="fa-solid fa-location-crosshairs"></i> Campus Central UTE</button>
+  </div>
+
+  <!-- INFO PANEL -->
+  <aside class="info-panel" id="infoPanel">
+    <div class="info-inner">
+      <div class="info-ph" id="infoPH">
+        <div class="ph-ico"><i class="fa-solid fa-building-columns"></i></div>
+        <p>Selecciona un edificio de la lista<br>o haz clic en un marcador del mapa.</p>
+      </div>
+      <div id="infoContent" style="display:none;flex-direction:column;height:100%;overflow:hidden">
+        <div class="info-head" id="infoHead"></div>
+        <div class="info-breadcrumb" id="infoBreadcrumb">
+          <span onclick="closeInfoPanel()"><i class="fa-solid fa-house"></i> Campus</span>
+          <span style="color:var(--gris-300)">›</span>
+          <span id="bcType" style="color:var(--gris-600)">—</span>
+          <span style="color:var(--gris-300)">›</span>
+          <span id="bcName" style="color:var(--naranja);font-weight:600">—</span>
+        </div>
+        <div class="info-status-row">
+          <div class="info-status-badge" id="infoStatusBadge">
+            <div class="info-status-dot"></div>
+            <span id="infoStatusText">—</span>
+          </div>
+          <div class="info-schedule" id="infoSchedule"></div>
+          <button class="btn-share" onclick="shareBuilding()"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+        </div>
+        <div class="info-body" id="infoBody"></div>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /app -->
+
+<!-- MOBILE BOTTOM SHEET -->
+<div class="bottom-sheet-overlay" id="bsOverlay" onclick="closeBSifOverlay(event)">
+  <div class="bottom-sheet" id="bsPanel">
+    <div class="sheet-handle" id="sheetHandle"></div>
+    <div class="sheet-head" id="sheetHead">
+      <button class="sheet-close" onclick="closeBS()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="onboarding-overlay" id="onboardingOverlay" style="display:none">
+  <div class="ob-spotlight" id="obSpot"></div>
+  <div class="onboarding-step" id="obStep">
+    <div class="ob-step-num" id="obNum">Paso 1 de 4</div>
+    <div class="ob-title" id="obTitle">Bienvenido al Mapa</div>
+    <div class="ob-desc" id="obDesc">Explora el campus de la UTE de forma interactiva.</div>
+    <div class="ob-actions">
+      <div class="ob-dots" id="obDots"></div>
+      <div class="ob-btns">
+        <button class="ob-btn skip" onclick="endOnboarding()">Omitir</button>
+        <button class="ob-btn next" onclick="nextOnboardingStep()">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-c"></div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/edificios.js"></script>
+<script src="js/data.js"></script>
+<script src="js/mapa-core.js"></script>
+<script src="js/mapa-ui.js"></script>
+</body>
+</html>

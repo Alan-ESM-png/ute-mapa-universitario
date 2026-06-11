@@ -1,0 +1,70 @@
+/* ═══════════════════════════════════════════════════════
+   UTE ESCOBEDO – Panel de Administración
+   Depende de: shared.css (variables, navbar, buttons, forms, modals, tables)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Layout ── */
+.layout{display:flex;height:100vh;padding-top:var(--nav-h)}
+
+/* ── Sidebar ── */
+.a-sidebar{width:220px;background:var(--azul);color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.a-grp{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.3);padding:.85rem 1.1rem .3rem;display:block}
+.a-lnk{display:flex;align-items:center;gap:.55rem;padding:.6rem 1.1rem;font-size:.8rem;color:rgba(255,255,255,.65);cursor:pointer;border-left:3px solid transparent;transition:all var(--transition)}
+.a-lnk:hover,.a-lnk.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--naranja)}
+.a-lnk .ico{font-size:.9rem;width:18px;text-align:center}
+.a-footer{margin-top:auto;padding:.85rem 1.1rem;border-top:1px solid rgba(255,255,255,.1);font-size:.72rem;color:rgba(255,255,255,.3)}
+.a-footer a{color:var(--naranja)}
+
+/* ── Main ── */
+.a-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.a-topbar{background:var(--blanco);border-bottom:1px solid var(--gris-200);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.a-topbar-title{font-size:1rem;font-weight:700;color:var(--azul);display:flex;align-items:center;gap:.5rem}
+.a-content{flex:1;overflow-y:auto;padding:1.5rem}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem}
+.stat-card{background:var(--blanco);border-radius:var(--radius-md);padding:1.1rem 1.25rem;border-left:4px solid var(--naranja);box-shadow:var(--shadow-sm)}
+.stat-card.blue{border-left-color:#1565C0}
+.stat-card.green{border-left-color:var(--verde)}
+.stat-card.purple{border-left-color:#6A1B9A}
+.s-lbl{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gris-400);margin-bottom:.25rem}
+.s-val{font-size:1.9rem;font-weight:800;color:var(--azul);line-height:1}
+.s-sub{font-size:.7rem;color:var(--gris-400);margin-top:3px}
+
+/* ── Sections ── */
+.a-sec{display:none}
+.a-sec.active{display:block}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.sec-title{font-size:1rem;font-weight:700;color:var(--azul);display:flex;align-items:center;gap:.4rem}
+.sec-tag{background:var(--naranja-bg);color:var(--naranja-dark);font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase}
+
+/* ── Route Editor ── */
+.route-editor{display:grid;grid-template-columns:320px 1fr;gap:1rem;height:calc(100vh - var(--nav-h) - 52px - 3rem)}
+.editor-panel{background:var(--blanco);border-radius:var(--radius-md);border:1px solid var(--gris-200);overflow-y:auto;display:flex;flex-direction:column}
+.ep-head{padding:1rem;border-bottom:1px solid var(--gris-200);font-weight:700;font-size:.9rem;color:var(--azul)}
+.ep-body{padding:1rem;flex:1}
+#editorMap{border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--gris-200);height:100%}
+
+/* Drawing tools */
+.draw-tools{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.tool-btn{display:flex;align-items:center;gap:.35rem;padding:.4rem .85rem;border-radius:var(--radius-sm);font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid var(--gris-200);background:var(--blanco);color:var(--gris-700);transition:all var(--transition);font-family:var(--font)}
+.tool-btn:hover{border-color:var(--naranja);color:var(--naranja)}
+.tool-btn.active{background:var(--naranja);color:#fff;border-color:var(--naranja)}
+.tool-btn.teal{border-color:#00838F;color:#00838F}
+.tool-btn.teal:hover,.tool-btn.teal.active{background:#00838F;color:#fff}
+.mode-ind{padding:.48rem .75rem;border-radius:var(--radius-sm);font-size:.75rem;font-weight:600;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.mode-ind.idle{background:var(--gris-100);color:var(--gris-600)}
+.mode-ind.drawing-ida{background:#E8F5E9;color:#1B5E20}
+.mode-ind.drawing-vuelta{background:#E3F2FD;color:#1565C0}
+.coords-list{max-height:160px;overflow-y:auto;border:1px solid var(--gris-200);border-radius:var(--radius-sm);font-size:.72rem}
+.coord-row{display:flex;align-items:center;justify-content:space-between;padding:.32rem .6rem;border-bottom:1px solid var(--gris-100);color:var(--gris-700)}
+.coord-row:last-child{border:none}
+.coord-num{color:var(--naranja);font-weight:700;margin-right:.4rem}
+.del-coord{font-size:.75rem;color:var(--rojo);opacity:.6;transition:opacity var(--transition)}
+.del-coord:hover{opacity:1}
+
+/* ── Activity log ── */
+.log-item{display:flex;gap:.65rem;padding:.7rem 1rem;border-bottom:1px solid var(--gris-100);font-size:.78rem}
+.log-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.log-text{color:var(--gris-700);flex:1}
+.log-time{color:var(--gris-400);font-size:.7rem;white-space:nowrap}

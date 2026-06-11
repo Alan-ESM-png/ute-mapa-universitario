@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mi Perfil – UTE Escobedo</title>
+  <link rel="stylesheet" href="../css/shared.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">UTE</div>
+    <div class="nav-brand-text">
+      <span class="main">Universidad Tecnológica</span>
+      <span class="sub">Gral. Mariano Escobedo</span>
+    </div>
+  </div>
+  <div class="nav-center">
+    <a href="../index.html" class="nav-link"><i class="fa-solid fa-map"></i> Mapa del Campus</a>
+    <a href="rutas.html"  class="nav-link"><i class="fa-solid fa-bus"></i> Rutas</a>
+    <a href="perfil.html" class="nav-link active"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+  </div>
+  <div class="nav-right" id="userBadge"></div>
+</nav>
+
+<div class="page-wrap">
+  <div class="profile-hero" id="profileHero">
+    <div class="profile-avatar" id="pAvatar">?</div>
+    <div class="profile-info">
+      <div class="profile-name" id="pName">Cargando...</div>
+      <div class="profile-email" id="pEmail"></div>
+      <div class="profile-role-badge" id="pRole">—</div>
+    </div>
+    <div class="profile-actions">
+      <button class="btn btn-outline" style="border-color:rgba(255,255,255,.3);color:#fff" onclick="Auth.logout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="quick-grid">
+    <a href="../index.html" class="quick-card"><div class="quick-ico"><i class="fa-solid fa-map-location-dot"></i></div><div class="quick-lbl">Mapa Campus</div></a>
+    <a href="rutas.html"  class="quick-card"><div class="quick-ico"><i class="fa-solid fa-bus"></i></div><div class="quick-lbl">Rutas de Transporte</div></a>
+    <div class="quick-card" onclick="window.open('https://ute.edu.mx','_blank')"><div class="quick-ico"><i class="fa-solid fa-globe"></i></div><div class="quick-lbl">Sitio Oficial UTE</div></div>
+    <div class="quick-card" id="adminLink" style="display:none" onclick="location.href='../admin/index.html'"><div class="quick-ico"><i class="fa-solid fa-gear"></i></div><div class="quick-lbl">Admin Panel</div></div>
+  </div>
+
+  <div class="profile-grid">
+    <div class="info-card">
+      <div class="info-card-head"><i class="fa-solid fa-user"></i> Información de Cuenta</div>
+      <div class="info-card-body">
+        <div class="info-row"><span class="lbl">Nombre</span><span class="val" id="iNombre">—</span></div>
+        <div class="info-row"><span class="lbl">Correo</span><span class="val" id="iEmail">—</span></div>
+        <div class="info-row"><span class="lbl">Rol</span><span class="val" id="iRol">—</span></div>
+        <div class="info-row"><span class="lbl">Sesión</span><span class="val"><i class="fa-solid fa-circle" style="color:var(--verde);font-size:.45rem"></i> Activa</span></div>
+        <div class="info-row"><span class="lbl">Universidad</span><span class="val">UTE Escobedo, N.L.</span></div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-head"><i class="fa-solid fa-shield-halved"></i> Permisos del Sistema</div>
+      <div class="info-card-body" id="permsList"></div>
+    </div>
+
+    <div class="info-card" style="grid-column:1/-1">
+      <div class="info-card-head"><i class="fa-solid fa-compass"></i> Módulos disponibles para tu rol</div>
+      <div class="info-card-body" id="accesosList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-c"></div>
+
+<script src="../js/auth.js"></script>
+<script>
+'use strict';
+var s = Auth.getSession();
+if (!s) window.location.href = '../index.html';
+
+Auth.injectUserBadge('userBadge');
+
+document.getElementById('pAvatar').textContent = s.avatar;
+document.getElementById('pName').textContent   = s.name;
+document.getElementById('pEmail').textContent  = s.email || 'Visitante anónimo';
+document.getElementById('pRole').textContent   = Auth.getRoleLabel(s.role);
+document.getElementById('iNombre').textContent = s.name;
+document.getElementById('iEmail').textContent  = s.email || '—';
+document.getElementById('iRol').textContent    = Auth.getRoleLabel(s.role);
+
+if (s.role === 'admin') document.getElementById('adminLink').style.display = 'block';
+
+var PERMS = {
+  visitor:  ['view_map','view_routes'],
+  student:  ['view_map','view_routes','view_buildings'],
+  employee: ['view_map','view_routes','view_buildings'],
+  admin:    ['view_map','view_routes','view_buildings','edit_map','edit_routes','edit_buildings','manage_users']
+};
+var ALL_PERMS = {
+  view_map:        {ico:'fa-solid fa-map', lbl:'Ver mapa del campus'},
+  view_routes:     {ico:'fa-solid fa-bus', lbl:'Ver rutas de transporte'},
+  view_buildings:  {ico:'fa-solid fa-building-columns', lbl:'Ver info de edificios'},
+  edit_map:        {ico:'fa-solid fa-pen-to-square', lbl:'Editar mapa y marcadores'},
+  edit_routes:     {ico:'fa-solid fa-code-fork', lbl:'Crear/editar rutas en mapa'},
+  edit_buildings:  {ico:'fa-solid fa-building', lbl:'Agregar/editar edificios'},
+  manage_users:    {ico:'fa-solid fa-users', lbl:'Gestionar usuarios del sistema'}
+};
+var myPerms = PERMS[s.role] || PERMS.visitor;
+document.getElementById('permsList').innerHTML = Object.entries(ALL_PERMS).map(function(entry) {
+  var k = entry[0], v = entry[1];
+  var tiene = myPerms.includes(k);
+  return '<div class="acceso-item"><span class="acceso-ico"><i class="' + v.ico + '"></i></span><span class="acceso-label">' + v.lbl + '</span><span class="acceso-check">' + (tiene ? '<i class="fa-solid fa-check-circle" style="color:var(--verde)"></i>' : '<i class="fa-solid fa-lock" style="color:var(--gris-300)"></i>') + '</span></div>';
+}).join('');
+
+var MODULOS = {
+  visitor:  [{ico:'fa-solid fa-map',lbl:'Mapa del Campus',url:'../index.html'},{ico:'fa-solid fa-bus',lbl:'Rutas de Transporte',url:'rutas.html'}],
+  student:  [{ico:'fa-solid fa-map',lbl:'Mapa del Campus',url:'../index.html'},{ico:'fa-solid fa-bus',lbl:'Rutas de Transporte',url:'rutas.html'},{ico:'fa-solid fa-user',lbl:'Mi Perfil',url:'perfil.html'}],
+  employee: [{ico:'fa-solid fa-map',lbl:'Mapa del Campus',url:'../index.html'},{ico:'fa-solid fa-bus',lbl:'Rutas de Transporte',url:'rutas.html'},{ico:'fa-solid fa-user',lbl:'Mi Perfil',url:'perfil.html'}],
+  admin:    [{ico:'fa-solid fa-map',lbl:'Mapa del Campus',url:'../index.html'},{ico:'fa-solid fa-bus',lbl:'Rutas de Transporte',url:'rutas.html'},{ico:'fa-solid fa-user',lbl:'Mi Perfil',url:'perfil.html'},{ico:'fa-solid fa-gear',lbl:'Admin Panel',url:'../admin/index.html'}]
+};
+document.getElementById('accesosList').innerHTML = (MODULOS[s.role] || MODULOS.visitor).map(function(m) {
+  return '<div class="acceso-item"><span class="acceso-ico"><i class="' + m.ico + '"></i></span><span class="acceso-label">' + m.lbl + '</span><a href="' + m.url + '" style="font-size:.72rem;color:var(--naranja);font-weight:600">Ir <i class="fa-solid fa-arrow-right"></i></a></div>';
+}).join('');
+</script>
+</body>
+</html>

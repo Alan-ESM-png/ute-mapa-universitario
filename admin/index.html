@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin Panel – UTE Escobedo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="../css/shared.css"/>
+  <link rel="stylesheet" href="../css/admin.css"/>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">UTE</div>
+    <div class="nav-brand-text">
+      <span class="main">Admin Panel</span>
+      <span class="sub">Mapa UTE Escobedo</span>
+    </div>
+  </div>
+  <div class="nav-center">
+    <a href="../index.html" class="nav-link"><i class="fa-solid fa-map"></i> Ver Mapa</a>
+    <a href="../pages/rutas.html" class="nav-link"><i class="fa-solid fa-bus"></i> Ver Rutas</a>
+  </div>
+  <div class="nav-right" id="userBadge"></div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="a-sidebar">
+    <span class="a-grp">General</span>
+    <div class="a-lnk active" onclick="showSec('dashboard',this)"><span class="ico"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
+
+    <span class="a-grp">Mapa</span>
+    <div class="a-lnk" onclick="showSec('edificios',this)"><span class="ico"><i class="fa-solid fa-building-columns"></i></span> Edificios</div>
+    <div class="a-lnk" onclick="showSec('editor',this)"><span class="ico"><i class="fa-solid fa-map"></i></span> Editor de Rutas</div>
+    <div class="a-lnk" onclick="showSec('rutas',this)"><span class="ico"><i class="fa-solid fa-bus"></i></span> Lista Rutas</div>
+
+    <span class="a-grp">Sistema</span>
+    <div class="a-lnk" onclick="showSec('usuarios',this)"><span class="ico"><i class="fa-solid fa-users"></i></span> Usuarios</div>
+    <div class="a-lnk" onclick="showSec('log',this)"><span class="ico"><i class="fa-solid fa-clipboard-list"></i></span> Actividad</div>
+    <div class="a-lnk" onclick="confirmReset()"><span class="ico"><i class="fa-solid fa-rotate"></i></span> Resetear datos</div>
+
+    <div class="a-footer">v4.3 · <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> Sitio público</a></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="a-main">
+    <div class="a-topbar">
+      <div class="a-topbar-title" id="aTitle"><i class="fa-solid fa-chart-pie"></i> Dashboard</div>
+      <div style="display:flex;gap:.5rem" id="aActions"></div>
+    </div>
+
+    <div class="a-content">
+
+      <!-- DASHBOARD -->
+      <div id="sec-dashboard" class="a-sec active">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="s-lbl">Edificios</div>
+            <div class="s-val" id="st-ed">0</div>
+            <div class="s-sub">D1–D8, T1–T3</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="s-lbl">Rutas</div>
+            <div class="s-val" id="st-ru">0</div>
+            <div class="s-sub">Pública + Escolar</div>
+          </div>
+          <div class="stat-card green">
+            <div class="s-lbl">Carreras</div>
+            <div class="s-val">11</div>
+            <div class="s-sub">TSU e Ingeniería</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="s-lbl">Salones totales</div>
+            <div class="s-val" id="st-sa">0</div>
+            <div class="s-sub">Labs, aulas, salas</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="fa-solid fa-building-columns"></i> Resumen de Edificios</div></div>
+          <table class="table"><thead><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Salones</th><th>Estado</th></tr></thead>
+          <tbody id="tb-dash"></tbody></table>
+        </div>
+      </div>
+
+      <!-- EDIFICIOS -->
+      <div id="sec-edificios" class="a-sec">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="fa-solid fa-building-columns"></i> Edificios <span class="sec-tag" id="tag-ed">0</span></div>
+          <button class="btn btn-primary btn-sm" onclick="openModalAdd()"><i class="fa-solid fa-plus"></i> Agregar Edificio</button>
+        </div>
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Carreras</th><th>Salones</th><th>Horario</th><th>Acciones</th></tr></thead>
+            <tbody id="tb-ed"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EDITOR RUTAS -->
+      <div id="sec-editor" class="a-sec">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="fa-solid fa-map"></i> Editor de Rutas</div>
+          <button class="btn btn-primary btn-sm" onclick="saveNewRoute()"><i class="fa-solid fa-floppy-disk"></i> Guardar Ruta</button>
+        </div>
+        <div class="route-editor">
+          <div class="editor-panel">
+            <div class="ep-head">Configuración de la Ruta</div>
+            <div class="ep-body">
+              <div class="form-group">
+                <label class="form-label">Nombre de la ruta</label>
+                <input id="re-nom" class="form-control" type="text" placeholder="Ej: C4 – La Unidad / UTE"/>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Tipo</label>
+                  <select id="re-tipo" class="form-control"><option value="publica">Pública</option><option value="privada">Escolar (paga)</option></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Color</label>
+                  <input id="re-color" class="form-control" type="color" value="#2E7D32"/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Entrada (h)</label>
+                  <input id="re-entrada" class="form-control" placeholder="7:00, 18:00"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Salida (h)</label>
+                  <input id="re-salida" class="form-control" placeholder="14:20, 21:45"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Costo</label>
+                <input id="re-costo" class="form-control" placeholder="Tarifa NL / $350 MXN"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Paradas (una por línea)</label>
+                <textarea id="re-paradas" class="form-control" style="min-height:80px" placeholder="Av. La Unidad&#10;Carr. Laredo&#10;UTE"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nota (opcional)</label>
+                <textarea id="re-nota" class="form-control" placeholder="Ej: Preguntar al operador..."></textarea>
+              </div>
+
+              <hr style="border-top:1px solid var(--gris-200);margin:.75rem 0"/>
+              <div style="font-size:.75rem;font-weight:700;color:var(--azul);margin-bottom:.6rem"><i class="fa-solid fa-location-dot"></i> Trazar recorrido en mapa</div>
+
+              <div class="mode-ind idle" id="modeInd"><i class="fa-solid fa-pen-to-square"></i> Inactivo — Activa un modo para trazar</div>
+
+              <div class="draw-tools">
+                <button class="tool-btn" id="btnIda"    onclick="startDraw('ida')"><i class="fa-solid fa-arrow-right"></i> Trazar IDA</button>
+                <button class="tool-btn teal" id="btnVuelta" onclick="startDraw('vuelta')"><i class="fa-solid fa-arrow-left"></i> Trazar VUELTA</button>
+                <button class="tool-btn" onclick="stopDraw()"><i class="fa-solid fa-stop"></i> Detener</button>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
+                <span style="font-size:.7rem;font-weight:600;color:var(--gris-600)" id="coordsLbl">Puntos IDA (0)</span>
+                <button class="btn btn-danger btn-xs" onclick="clearCoords()"><i class="fa-solid fa-trash-can"></i> Limpiar</button>
+              </div>
+              <div class="coords-list" id="coordsList">
+                <div style="padding:.75rem;color:var(--gris-400);font-size:.75rem;text-align:center">Activa dibujo y haz clic en el mapa.</div>
+              </div>
+            </div>
+          </div>
+          <div id="editorMap"></div>
+        </div>
+      </div>
+
+      <!-- LISTA RUTAS -->
+      <div id="sec-rutas" class="a-sec">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="fa-solid fa-bus"></i> Rutas <span class="sec-tag" id="tag-ru">0</span></div>
+          <button class="btn btn-primary btn-sm" onclick="showSec('editor',null)"><i class="fa-solid fa-plus"></i> Nueva Ruta</button>
+        </div>
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>Nombre</th><th>Tipo</th><th>Entrada</th><th>Salida</th><th>Costo</th><th>Pts IDA</th><th>Acciones</th></tr></thead>
+            <tbody id="tb-ru"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- USUARIOS -->
+      <div id="sec-usuarios" class="a-sec">
+        <div class="sec-title" style="margin-bottom:1rem"><i class="fa-solid fa-users"></i> Usuarios del Sistema</div>
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Admin Sistema</strong></td><td>admin@ute.edu.mx</td><td><span class="badge badge-admin">Admin</span></td><td><span class="badge badge-green">Activo</span></td></tr>
+              <tr><td><strong>María Rodríguez</strong></td><td>maria@ute.edu.mx</td><td><span class="badge badge-blue">Alumno</span></td><td><span class="badge badge-green">Activo</span></td></tr>
+              <tr><td><strong>Carlos Empleado</strong></td><td>carlos@ute.edu.mx</td><td><span class="badge badge-orange">Empleado</span></td><td><span class="badge badge-green">Activo</span></td></tr>
+              <tr><td><strong>Visitante</strong></td><td>—</td><td><span class="badge badge-gray">Visitante</span></td><td><span class="badge badge-gray">Anónimo</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LOG -->
+      <div id="sec-log" class="a-sec">
+        <div class="sec-title" style="margin-bottom:1rem"><i class="fa-solid fa-clipboard-list"></i> Actividad Reciente</div>
+        <div class="card"><div id="actLog"></div></div>
+      </div>
+
+    </div><!-- /a-content -->
+  </div><!-- /a-main -->
+</div><!-- /layout -->
+
+<!-- ══════════════════════════════════════════════════
+     MODAL EDITAR EDIFICIO
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalEditar">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalEditarTitle"><i class="fa-solid fa-pen-to-square"></i> Editar Edificio</div>
+      <button class="modal-close" onclick="closeModal('modalEditar')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="me-id-orig"/>
+
+      <div class="modal-section">
+        <div class="modal-section-title"><i class="fa-solid fa-tag"></i> Identificación</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ID del Edificio</label>
+            <input id="me-id" class="form-control" type="text" readonly/>
+            <div class="form-hint">El ID no puede modificarse.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select id="me-tipo" class="form-control"><option value="docencia">Docencia</option><option value="taller">Taller</option><option value="servicio">Servicio</option></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre completo</label>
+          <input id="me-nombre" class="form-control" type="text" placeholder="Ej: D9 – Idiomas"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Color en mapa</label>
+            <input id="me-color" class="form-control" type="color"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total de salones</label>
+            <input id="me-salones" class="form-control" type="number" min="0"/>
+          </div>
+        </div>
+      </div>
+
+      <hr class="modal-divider"/>
+
+      <div class="modal-section">
+        <div class="modal-section-title"><i class="fa-solid fa-book"></i> Académico</div>
+        <div class="form-group">
+          <label class="form-label">Carreras / Áreas (separadas por coma)</label>
+          <textarea id="me-carreras" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grupos activos (separados por coma)</label>
+          <input id="me-grupos" class="form-control" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Trámites disponibles (separados por coma)</label>
+          <textarea id="me-tramites" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Horario de operación</label>
+          <input id="me-horario" class="form-control" type="text" placeholder="Lun–Vie 7:00–21:00 h"/>
+        </div>
+      </div>
+
+      <hr class="modal-divider"/>
+
+      <div class="modal-section">
+        <div class="modal-section-title"><i class="fa-solid fa-ruler-combined"></i> Coordenadas GPS</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Latitud</label>
+            <input id="me-lat" class="form-control" type="number" step="0.000001"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Longitud</label>
+            <input id="me-lng" class="form-control" type="number" step="0.000001"/>
+          </div>
+        </div>
+        <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> También puedes arrastrar el marcador en el Mapa del Campus para actualizar las coordenadas automáticamente.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalEditar')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteFromModal()"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
+      <button class="btn btn-primary" onclick="saveEdificio()"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR EDIFICIO -->
+<div class="modal-overlay" id="modalAdd">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-building-columns"></i> Nuevo Edificio</div>
+      <button class="modal-close" onclick="closeModal('modalAdd')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">ID (Ej: D9, T4)</label>
+          <input id="ma-id" class="form-control" type="text" placeholder="D9" maxlength="3"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select id="ma-tipo" class="form-control"><option value="docencia">Docencia</option><option value="taller">Taller</option><option value="servicio">Servicio</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input id="ma-nombre" class="form-control" type="text" placeholder="Ej: D9 – Idiomas"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Carreras / Áreas (separadas por coma)</label>
+        <textarea id="ma-carreras" class="form-control" placeholder="TSU en Idiomas, Inglés Avanzado"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Latitud</label>
+          <input id="ma-lat" class="form-control" type="number" step="0.000001" value="25.83044"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitud</label>
+          <input id="ma-lng" class="form-control" type="number" step="0.000001" value="-100.28213"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Total salones</label>
+          <input id="ma-sal" class="form-control" type="number" value="8"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color en mapa</label>
+          <input id="ma-color" class="form-control" type="color" value="#F4821F"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Horario</label>
+        <input id="ma-horario" class="form-control" type="text" placeholder="Lun–Vie 7:00–21:00 h"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAdd')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addEdificio()"><i class="fa-solid fa-check"></i> Agregar Edificio</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-c"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/edificios.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/admin-core.js"></script>
+<script src="../js/admin-editor.js"></script>
+</body>
+</html>

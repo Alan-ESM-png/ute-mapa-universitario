@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="Rutas de transporte público y escolar de la UTE Escobedo – Horarios, paradas y métodos de pago."/>
+  <title>Rutas y Transporte – UTE Escobedo</title>
+  <link rel="stylesheet" href="../css/shared.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">UTE</div>
+    <div class="nav-brand-text">
+      <span class="main">Universidad Tecnológica</span>
+      <span class="sub">Gral. Mariano Escobedo</span>
+    </div>
+  </div>
+  <div class="nav-center">
+    <a href="../index.html" class="nav-link"><i class="fa-solid fa-map"></i> Mapa del Campus</a>
+    <a href="rutas.html" class="nav-link active"><i class="fa-solid fa-bus"></i> Rutas y Transporte</a>
+    <a href="perfil.html" class="nav-link" id="perfilLink" style="display:none"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+  </div>
+  <div class="nav-right" id="userBadge"></div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-title-row">
+    <div class="page-title"><i class="fa-solid fa-bus"></i> Rutas y Transporte</div>
+    <div class="page-sub">Información actualizada sobre cómo llegar y regresar de la UTE de forma segura.</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('publica', this)"><i class="fa-solid fa-bus-simple"></i> Transporte Público</button>
+    <button class="tab-btn"        onclick="switchTab('privada',  this)"><i class="fa-solid fa-shield-halved"></i> Transporte Escolar</button>
+  </div>
+
+  <div class="alert-box" id="alertPrivado">
+    <span style="font-size:1.1rem"><i class="fa-solid fa-shield-halved" style="color:var(--naranja-dark)"></i></span>
+    <div>
+      <div class="alert-title">Transporte Seguro UTE</div>
+      <div class="alert-desc">El transporte escolar es operado directamente por la universidad. Requiere pago previo en Caja (Rectoría – D1) o transferencia bancaria.</div>
+    </div>
+  </div>
+
+  <div class="rutas-grid" id="rutasGrid"></div>
+</div>
+
+<div id="toast-c"></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/data.js"></script>
+<script>
+'use strict';
+Auth.injectUserBadge('userBadge');
+var _s2 = Auth.getSession();
+if (_s2 && _s2.role !== 'visitor') { var pl2 = document.getElementById('perfilLink'); if (pl2) pl2.style.display = 'flex'; }
+
+var currentTab = 'publica';
+var _rutaStore = {};
+DB.getRutas().forEach(function(r) { _rutaStore[r.id] = r; });
+
+function switchTab(tipo, btn) {
+  currentTab = tipo;
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('alertPrivado').classList.toggle('show', tipo === 'privada');
+  render();
+}
+
+function renderParadas(lista, color) {
+  return lista.map(function(p, i) {
+    return '<div class="parada-item"><div class="parada-dot ' + (i === lista.length-1 ? 'f' : 'o') + '" style="' + (i === lista.length-1 ? '' : 'border-color:' + color) + '"></div>' + p + '</div>';
+  }).join('');
+}
+
+function render() {
+  var rutas = DB.getRutas().filter(function(r) { return r.tipo === currentTab; });
+  var grid  = document.getElementById('rutasGrid');
+
+  if (!rutas.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-400)">No hay rutas registradas para esta categoría.</div>';
+    return;
+  }
+
+  grid.innerHTML = rutas.map(function(r) {
+    return '<div class="ruta-card">'
+      + '<div class="ruta-card-head"><div><div class="ruta-nombre">' + r.nombre + '</div><div class="ruta-operador">' + r.operador + '</div></div>'
+      + '<span class="badge ' + (r.tipo === 'publica' ? 'badge-blue' : 'badge-admin') + '">' + (r.tipo === 'publica' ? '<i class="fa-solid fa-bus-simple"></i> Público' : '<i class="fa-solid fa-shield-halved"></i> Privado') + '</span></div>'
+      + '<div class="ruta-body">'
+      + '<div class="horarios-row">'
+        + '<div class="horario-box entrada"><div class="horario-lbl"><i class="fa-solid fa-circle" style="color:#4CAF50;font-size:.35rem"></i> Entrada</div><div class="horario-val">' + r.horarios.entrada.join(' · ') + '</div></div>'
+        + '<div class="horario-box salida"><div class="horario-lbl"><i class="fa-solid fa-circle" style="color:#1565C0;font-size:.35rem"></i> Salida</div><div class="horario-val">' + r.horarios.salida.join(' · ') + '</div></div>'
+      + '</div>'
+      + '<div class="meta-row"><span class="meta-ico"><i class="fa-solid fa-money-bill-wave"></i></span> ' + r.costo + '</div>'
+      + (r.nota ? '<div class="nota-box"><i class="fa-solid fa-triangle-exclamation"></i> ' + r.nota + '</div>' : '')
+      + '<div class="paradas-section">'
+        + '<div class="paradas-tabs">'
+          + '<span class="p-tab active" onclick="switchParadas(this,\'' + r.id + '\',\'ida\')"><i class="fa-solid fa-arrow-right"></i> Recorrido IDA</span>'
+          + '<span class="p-tab" onclick="switchParadas(this,\'' + r.id + '\',\'vuelta\')"><i class="fa-solid fa-arrow-left"></i> Recorrido VUELTA</span>'
+        + '</div>'
+        + '<div class="paradas-label"><i class="fa-solid fa-location-dot"></i> Puntos de parada</div>'
+        + '<div id="paradas-' + r.id + '">' + renderParadas(r.paradas_ida, r.color) + '</div>'
+      + '</div>'
+      + '<div style="margin-top:.75rem"><div class="paradas-label"><i class="fa-solid fa-credit-card"></i> Método de Pago</div>'
+      + '<div class="pago-chips">' + r.metodoPago.map(function(p) { return '<span class="pago-chip">' + p + '</span>'; }).join('') + '</div></div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function switchParadas(btn, rutaId, sentido) {
+  var section = btn.closest('.paradas-section');
+  section.querySelectorAll('.p-tab').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+  var r = _rutaStore[rutaId];
+  var lista = sentido === 'ida' ? r.paradas_ida : r.paradas_vuelta;
+  document.getElementById('paradas-' + rutaId).innerHTML = renderParadas(lista, r.color);
+}
+
+render();
+</script>
+</body>
+</html>
