@@ -8,7 +8,8 @@
 /* ════════════════════════════════════════════════════
    DARK MODE
 ════════════════════════════════════════════════════ */
-var isDark = localStorage.getItem('ute_dark') === 'true';
+var storedDark = localStorage.getItem('ute_dark');
+var isDark = storedDark === 'true' || (storedDark === null && window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches);
 function applyDark(on) {
   isDark = on;
   document.documentElement.classList.toggle('dark', on);
@@ -264,12 +265,6 @@ function closeBS() { $('bsOverlay').classList.remove('open'); activeId = null; d
 function closeBSifOverlay(e) { if (e.target === $('bsOverlay')) closeBS(); }
 
 /* ════════════════════════════════════════════════════
-   FAB & MAP CLICK
-════════════════════════════════════════════════════ */
-$('btnCenter').addEventListener('click', function() { map.flyTo([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17, { duration: 1.1, easeLinearity: .35 }); });
-map.on('click', function() { if (window.innerWidth >= 769) closeInfoPanel(); else closeBS(); });
-
-/* ════════════════════════════════════════════════════
    KEYBOARD NAVIGATION
 ════════════════════════════════════════════════════ */
 document.addEventListener('keydown', function(e) {
@@ -293,6 +288,22 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowDown' && cur < allIds.length - 1) selectEdificio(allIds[cur + 1]);
   else if (e.key === 'ArrowUp' && cur > 0) selectEdificio(allIds[cur - 1]);
 });
+
+/* ════════════════════════════════════════════════════
+   FAB & MAP CLICK
+════════════════════════════════════════════════════ */
+$('btnCenter').addEventListener('click', function() { map.flyTo([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17, { duration: 1.1, easeLinearity: .35 }); });
+$('btnMyLoc').addEventListener('click', function() {
+  if (!navigator.geolocation) { toast('Geolocalización no soportada', 'error'); return; }
+  toast('Obteniendo tu ubicación…', 'info', 2000);
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { duration: 1.2 });
+    var icon = L.divIcon({ className:'', html:'<div style="width:16px;height:16px;border-radius:50%;background:#1565C0;border:3px solid #fff;box-shadow:0 0 0 4px rgba(21,101,192,.3),0 3px 10px rgba(0,0,0,.3);animation:pulse 2s infinite"></div><style>@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(21,101,192,.3),0 3px 10px rgba(0,0,0,.3)}50%{box-shadow:0 0 0 12px rgba(21,101,192,0),0 3px 10px rgba(0,0,0,.3)}}</style>', iconSize:[16,16], iconAnchor:[8,8] });
+    L.marker([pos.coords.latitude, pos.coords.longitude], { icon:icon }).addTo(map).bindPopup('<strong>📍 Estás aquí</strong>',{closeButton:false}).openPopup();
+    toast('Ubicación encontrada', 'success');
+  }, function() { toast('No se pudo obtener tu ubicación', 'error'); }, { enableHighAccuracy:true, timeout:8000 });
+});
+map.on('click', function() { if (window.innerWidth >= 769) closeInfoPanel(); else closeBS(); });
 
 /* ════════════════════════════════════════════════════
    URL PARAM & INIT
