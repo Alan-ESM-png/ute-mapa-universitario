@@ -4,10 +4,15 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <meta name="theme-color" content="#F4821F"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="UTEMAPP"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="description" content="UTEMAPP – Navega el campus UTE, encuentra edificios y carreras fácilmente."/>
   <meta property="og:title" content="UTEMAPP – Mapa Campus UTE"/>
   <meta property="og:description" content="Tu guía del campus en el bolsillo. Edificios, carreras, rutas."/>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4821F'/><text y='.9em' font-size='75' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='900'>U</text></svg>"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <link rel="icon" href="icon-192.png"/>
   <link rel="manifest" href="manifest.json"/>
   <title>UTEMAPP – Campus UTE</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -18,6 +23,16 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+
+<!-- SPLASH -->
+<div class="splash" id="splash">
+  <div class="splash-logo">U</div>
+  <div class="splash-title">UTEMAPP</div>
+  <div class="splash-sub">Campus UTE Escobedo</div>
+</div>
+
+<!-- OFFLINE BAR -->
+<div class="offline-bar" id="offlineBar">Sin conexión — mostrando datos locales</div>
 
 <!-- TOP BAR -->
 <header class="topbar">
@@ -96,5 +111,8 @@
 <script src="../js/edificios.js"></script>
 <script src="../js/data.js"></script>
 <script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+</script>
 </body>
 </html>
