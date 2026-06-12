@@ -1,0 +1,14 @@
+{
+  "name": "UTEMAPP – Campus UTE",
+  "short_name": "UTEMAPP",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F4821F",
+  "theme_color": "#F4821F",
+  "description": "Mapa del campus UTE Escobedo – Encuentra edificios, carreras y rutas.",
+  "icons": [{
+    "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4821F'/><text y='.9em' font-size='75' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='900'>U</text></svg>",
+    "sizes": "any",
+    "type": "image/svg+xml"
+  }]
+}

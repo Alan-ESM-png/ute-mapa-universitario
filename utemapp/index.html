@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#F4821F"/>
+  <meta name="description" content="UTEMAPP – Navega el campus UTE, encuentra edificios y carreras fácilmente."/>
+  <meta property="og:title" content="UTEMAPP – Mapa Campus UTE"/>
+  <meta property="og:description" content="Tu guía del campus en el bolsillo. Edificios, carreras, rutas."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4821F'/><text y='.9em' font-size='75' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='900'>U</text></svg>"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>UTEMAPP – Campus UTE</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">U</div>
+    <div class="topbar-title">UTEMAPP</div>
+  </div>
+  <div class="topbar-search" id="topSearchWrap">
+    <i class="fa-solid fa-magnifying-glass topbar-search-ic"></i>
+    <input id="topSearch" type="text" placeholder="Buscar edificio o carrera…" autocomplete="off"/>
+  </div>
+</header>
+
+<!-- MAP -->
+<div id="map"></div>
+
+<!-- MY LOCATION BUTTON -->
+<button id="btnLoc" onclick="goMyLocation()" title="Mi ubicación">
+  <i class="fa-solid fa-location-crosshairs"></i>
+</button>
+
+<!-- CAMPUS CENTER BUTTON -->
+<button id="btnCampus" onclick="goCampus()" title="Campus UTE">
+  <i class="fa-solid fa-building-columns"></i>
+</button>
+
+<!-- BUILDING CARD (bottom sheet) -->
+<div id="buildingCard" class="bld-card">
+  <div class="bld-card-handle" onclick="closeCard()"></div>
+  <div id="cardContent"></div>
+</div>
+
+<!-- SEARCH RESULTS DROPDOWN -->
+<div id="searchDrop" class="search-drop"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="botnav">
+  <div class="botnav-item active" data-tab="mapa" onclick="switchTab('mapa')">
+    <i class="fa-solid fa-map-location-dot"></i><span>Mapa</span>
+  </div>
+  <div class="botnav-item" data-tab="edificios" onclick="switchTab('edificios')">
+    <i class="fa-solid fa-building-columns"></i><span>Edificios</span>
+  </div>
+  <div class="botnav-item" data-tab="rutas" onclick="switchTab('rutas')">
+    <i class="fa-solid fa-bus"></i><span>Rutas</span>
+  </div>
+  <div class="botnav-item" data-tab="info" onclick="switchTab('info')">
+    <i class="fa-solid fa-circle-info"></i><span>Info</span>
+  </div>
+</nav>
+
+<!-- BUILDINGS LIST PANEL -->
+<div id="panelEdificios" class="panel">
+  <div class="panel-head">🏛️ Edificios del Campus</div>
+  <div id="listEdificios" class="panel-list"></div>
+</div>
+
+<!-- ROUTES PANEL -->
+<div id="panelRutas" class="panel">
+  <div class="panel-head">🚌 Rutas de Transporte</div>
+  <div id="listRutas" class="panel-list"></div>
+</div>
+
+<!-- INFO PANEL -->
+<div id="panelInfo" class="panel">
+  <div class="panel-head">ℹ️ Acerca de UTEMAPP</div>
+  <div class="panel-body" style="padding:1rem;line-height:1.8;font-size:.85rem;color:var(--gris-700)">
+    <p><strong>UTEMAPP</strong> es la guía del campus de la Universidad Tecnológica Gral. Mariano Escobedo.</p>
+    <p style="margin-top:.5rem">Encuentra edificios, conoce qué carreras hay en cada uno, ve horarios, y revisa las rutas de camión.</p>
+    <p style="margin-top:.5rem">Hecho por <strong>Alan</strong> &amp; <strong>Dialn</strong> · Proyecto Integrador UTE 2026</p>
+    <p style="margin-top:.5rem;font-size:.7rem;color:var(--gris-400)">v1.0 · Leaflet.js · Font Awesome 6</p>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../js/edificios.js"></script>
+<script src="../js/data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
