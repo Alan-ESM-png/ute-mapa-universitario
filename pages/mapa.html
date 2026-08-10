@@ -6,10 +6,17 @@
   <title>UTE Escobedo – Mapa del Campus</title>
   <style>
     body{font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#1A2D5A;color:#fff}
-    a{color:#F4821F}
+    .box{text-align:center}
+    a{color:#F4821F;font-weight:600;text-decoration:none;transition:color .2s}
+    a:hover{color:#E65100}
+    .spinner{width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:#F4821F;animation:spin .8s linear infinite;margin:0 auto 1rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
-  <p>Redirigiendo al mapa… <a href="../index.html">Haz clic aquí si no eres redirigido.</a></p>
+  <div class="box">
+    <div class="spinner"></div>
+    <p>Redirigiendo al mapa interactivo…<br><a href="../index.html">Haz clic aquí si no eres redirigido.</a></p>
+  </div>
 </body>
 </html>

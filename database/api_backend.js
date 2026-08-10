@@ -1,15 +1,16 @@
 /**
  * UTE Escobedo – API Backend Segura (Node.js + Express)
  * ══════════════════════════════════════════════════════
- * Este archivo es un EJEMPLO de cómo conectar el frontend
- * con la base de datos de forma segura en producción.
+ * Este archivo conecta el frontend con la base de datos de
+ * forma segura en producción.
  *
  * Para usar en producción:
  *   npm install express mysql2 bcrypt jsonwebtoken helmet cors express-rate-limit dotenv
  */
 
 'use strict';
-require('dotenv').config();       // Variables de entorno (NUNCA hardcodear credenciales)
+require('dotenv').config();
+if (!process.env.NODE_ENV) process.env.NODE_ENV = 'production';       // Variables de entorno (NUNCA hardcodear credenciales)
 
 const express    = require('express');
 const mysql      = require('mysql2/promise');
@@ -20,15 +21,22 @@ const cors       = require('cors');
 const rateLimit  = require('express-rate-limit');
 
 const app = express();
+app.set("trust proxy", 1);
 
 /* ──────────────────────────────────────────────────
    MIDDLEWARES DE SEGURIDAD
 ────────────────────────────────────────────────── */
 app.use(helmet());                           // Headers HTTP seguros
 app.use(express.json({ limit: '50kb' }));   // Limitar tamaño de body
+
+// Logger simple: muestra cada petición entrante en consola
+app.use((req, res, next) => {
+  console.log(`📥 ${new Date().toLocaleTimeString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN || 'http://127.0.0.1:5500',
-  methods: ['GET','POST','PATCH','DELETE'],
+  methods: ['GET','POST','PUT','PATCH','DELETE'],
   allowedHeaders: ['Content-Type','Authorization']
 }));
 
@@ -64,14 +72,26 @@ const pool = mysql.createPool({
 /* ──────────────────────────────────────────────────
    MIDDLEWARE DE AUTENTICACIÓN JWT
 ────────────────────────────────────────────────── */
-function autenticar(req, res, next) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) return res.status(401).json({ error: 'Token requerido' });
+const crypto = require('crypto');
+
+async function autenticar(req, res, next) {
   try {
-    req.user = jwt.verify(header.slice(7), process.env.JWT_SECRET);
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) return res.status(401).json({ error: 'Token requerido' });
+    const token = header.slice(7);
+    try {
+      req.user = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return res.status(401).json({ error: 'Token inválido o expirado' });
+    }
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const [rows] = await pool.execute(
+      'SELECT id FROM sesiones WHERE id=? AND revocada=0 AND expira_en>NOW()', [tokenHash]
+    );
+    if (!rows.length) return res.status(401).json({ error: 'Sesión revocada o expirada' });
     next();
   } catch {
-    res.status(401).json({ error: 'Token inválido o expirado' });
+    res.status(500).json({ error: 'Error al validar sesión' });
   }
 }
 
@@ -97,31 +117,33 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
   if (!email || !password)
     return res.status(400).json({ error: 'Email y contraseña requeridos' });
 
+  // Usar una sola conexión para evitar race condition con @bloqueado
+  const conn = await pool.getConnection();
   try {
     // Verificar rate-limit en BD (procedimiento almacenado)
-    const [rows] = await pool.execute(
-      'CALL sp_verificar_intentos_login(?, ?, @bloqueado); SELECT @bloqueado AS bloqueado',
-      [email, ip]
-    );
-    if (rows?.[1]?.[0]?.bloqueado) {
+    await conn.execute('CALL sp_verificar_intentos_login(?, ?, @bloqueado)', [email, ip]);
+    const [[bloqueadoRow]] = await conn.execute('SELECT @bloqueado AS bloqueado');
+    if (bloqueadoRow?.bloqueado) {
+      conn.release();
       return res.status(429).json({ error: 'Cuenta bloqueada temporalmente por múltiples intentos fallidos' });
     }
 
     // Buscar usuario (query parametrizada – inmune a SQL Injection)
-    const [[user]] = await pool.execute(
+    const [[user]] = await conn.execute(
       'SELECT u.id, u.nombre, u.email, u.password_hash, r.nombre AS rol, u.avatar FROM usuarios u JOIN roles r ON u.rol_id=r.id WHERE u.email=? AND u.activo=1',
       [email]
     );
 
-    const exitoso = user && await bcrypt.compare(password, user.password_hash);
+    const hashToCheck = user ? user.password_hash : '$2b$12$00000000000000000000000000000000000000000000000000000';
+    const exitoso = await bcrypt.compare(password, hashToCheck) && !!user;
 
     // Registrar intento
-    await pool.execute(
+    await conn.execute(
       'INSERT INTO login_intentos (email, ip_origen, exitoso) VALUES (?,?,?)',
       [email, ip, exitoso ? 1 : 0]
     );
 
-    if (!exitoso) return res.status(401).json({ error: 'Credenciales incorrectas' });
+    if (!exitoso) { conn.release(); return res.status(401).json({ error: 'Credenciales incorrectas' }); }
 
     // Generar JWT con expiración corta
     const token = jwt.sign(
@@ -131,18 +153,20 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
     );
 
     // Guardar sesión en BD
-    const tokenHash = require('crypto').createHash('sha256').update(token).digest('hex');
-    await pool.execute(
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    await conn.execute(
       'INSERT INTO sesiones (id, usuario_id, ip_origen, expira_en) VALUES (?,?,?, DATE_ADD(NOW(), INTERVAL 8 HOUR))',
       [tokenHash, user.id, ip]
     );
 
     // Actualizar último login
-    await pool.execute('UPDATE usuarios SET ultimo_login=NOW() WHERE id=?', [user.id]);
+    await conn.execute('UPDATE usuarios SET ultimo_login=NOW() WHERE id=?', [user.id]);
 
+    conn.release();
     res.json({ token, nombre: user.nombre, rol: user.rol, avatar: user.avatar });
   } catch (err) {
     console.error(err);
+    try { conn.release(); } catch (_) {}
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
@@ -153,7 +177,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
 app.post('/api/auth/logout', autenticar, async (req, res) => {
   const header = req.headers.authorization;
   const token  = header.slice(7);
-  const hash   = require('crypto').createHash('sha256').update(token).digest('hex');
+  const hash   = crypto.createHash('sha256').update(token).digest('hex');
   await pool.execute('UPDATE sesiones SET revocada=1 WHERE id=?', [hash]);
   res.json({ ok: true });
 });
@@ -171,6 +195,41 @@ app.get('/api/edificios', async (req, res) => {
 });
 
 /* ──────────────────────────────────────────────────
+   EDIFICIOS – POST – Registrar (Solo Admin + JWT)
+────────────────────────────────────────────────── */
+app.post('/api/edificios', autenticar, soloAdmin, async (req, res) => { 
+  const { id, nombre, tipo_id, latitud, longitud, horario } = req.body; 
+  
+  if (!id || !nombre || !tipo_id || !latitud || !longitud) { 
+    return res.status(400).json({ error: 'Required fields are missing' }); 
+  } 
+  if (!/^[A-Z0-9]{1,5}$/.test(id)) { 
+    return res.status(400).json({ error: 'Invalid building ID' }); 
+  } 
+  
+  try { 
+    await pool.execute( 
+      `INSERT INTO edificios (id, nombre, tipo_id, latitud, longitud, horario) 
+       VALUES (?, ?, ?, ?, ?, ?)`, 
+      [id, sanitize(nombre), tipo_id, latitud, longitud, horario ? sanitize(horario) : null] 
+    ); 
+
+    await pool.execute(
+      'INSERT INTO auditoria (usuario_id, accion, tabla, registro_id, ip_origen) VALUES (?,?,?,?,?)',
+      [req.user.id, 'ADD_EDIFICIO', 'edificios', id, req.ip]
+    );
+
+    res.status(201).json({ ok: true, message: `Building ${id} created` }); 
+  } catch (err) { 
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Building ID already exists' });
+    }
+    console.error(err);
+    res.status(500).json({ error: 'Error creating the building' }); 
+  } 
+});
+
+/* ──────────────────────────────────────────────────
    EDIFICIOS – Editar (solo admin)
 ────────────────────────────────────────────────── */
 app.patch('/api/edificios/:id', autenticar, soloAdmin, async (req, res) => {
@@ -185,18 +244,18 @@ app.patch('/api/edificios/:id', autenticar, soloAdmin, async (req, res) => {
     // Query parametrizada – protegida contra SQL Injection
     await pool.execute(
       `UPDATE edificios SET
-        nombre           = COALESCE(?, nombre),
-        horario          = COALESCE(?, horario),
-        capacidad_total  = COALESCE(?, capacidad_total),
-        latitud          = COALESCE(?, latitud),
-        longitud         = COALESCE(?, longitud)
+         nombre           = COALESCE(?, nombre),
+         horario          = COALESCE(?, horario),
+         capacidad_total  = COALESCE(?, capacidad_total),
+         latitud          = COALESCE(?, latitud),
+         longitud         = COALESCE(?, longitud)
        WHERE id = ?`,
       [
         nombre ? sanitize(nombre) : null,
         horario ? sanitize(horario) : null,
-        salones || null,
-        lat || null,
-        lng || null,
+        salones ?? null,
+        lat ?? null,
+        lng ?? null,
         id
       ]
     );
@@ -209,6 +268,81 @@ app.patch('/api/edificios/:id', autenticar, soloAdmin, async (req, res) => {
 
     res.json({ ok: true, message: `Edificio ${id} actualizado` });
   } catch { res.status(500).json({ error: 'Error al actualizar edificio' }); }
+});
+
+/* ──────────────────────────────────────────────────
+   EDIFICIOS – PUT – Reemplazo completo (solo admin)
+   (Requiere TODOS los campos, a diferencia de PATCH
+   que solo actualiza los campos enviados)
+────────────────────────────────────────────────── */
+app.put('/api/edificios/:id', autenticar, soloAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { nombre, tipo_id, latitud, longitud, horario, salones_total } = req.body;
+
+  if (!/^[A-Z0-9]{1,5}$/.test(id))
+    return res.status(400).json({ error: 'ID de edificio inválido' });
+
+  if (!nombre || !tipo_id || !latitud || !longitud)
+    return res.status(400).json({ error: 'Faltan campos requeridos (nombre, tipo_id, latitud, longitud)' });
+
+  try {
+    const [result] = await pool.execute(
+      `UPDATE edificios SET
+         nombre          = ?,
+         tipo_id         = ?,
+         latitud         = ?,
+         longitud        = ?,
+         horario         = ?,
+         capacidad_total = ?
+       WHERE id = ?`,
+      [sanitize(nombre), tipo_id, latitud, longitud, horario ? sanitize(horario) : null, salones_total || 0, id]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: `Edificio ${id} no encontrado` });
+
+    await pool.execute(
+      'INSERT INTO auditoria (usuario_id, accion, tabla, registro_id, ip_origen) VALUES (?,?,?,?,?)',
+      [req.user.id, 'PUT_EDIFICIO', 'edificios', id, req.ip]
+    );
+
+    res.json({ ok: true, message: `Edificio ${id} reemplazado correctamente` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al reemplazar edificio' });
+  }
+});
+
+/* ──────────────────────────────────────────────────
+   EDIFICIOS – DELETE – Baja lógica (solo admin)
+   (No se borra el renglón físicamente; se marca
+   activo = 0 para no romper llaves foráneas / auditoría)
+────────────────────────────────────────────────── */
+app.delete('/api/edificios/:id', autenticar, soloAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  if (!/^[A-Z0-9]{1,5}$/.test(id))
+    return res.status(400).json({ error: 'ID de edificio inválido' });
+
+  try {
+    const [result] = await pool.execute(
+      'UPDATE edificios SET activo = 0 WHERE id = ?',
+      [id]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: `Edificio ${id} no encontrado` });
+
+    await pool.execute(
+      'INSERT INTO auditoria (usuario_id, accion, tabla, registro_id, ip_origen) VALUES (?,?,?,?,?)',
+      [req.user.id, 'DELETE_EDIFICIO', 'edificios', id, req.ip]
+    );
+
+    res.json({ ok: true, message: `Edificio ${id} eliminado (baja lógica)` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al eliminar edificio' });
+  }
 });
 
 /* ──────────────────────────────────────────────────
@@ -258,17 +392,3 @@ app.get('/api/rutas', async (req, res) => {
 ────────────────────────────────────────────────── */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ API UTE corriendo en http://localhost:${PORT}`));
-
-/*
-══════════════════════════════════════════════════
-  ARCHIVO .env (NUNCA subir a Git – agregar a .gitignore)
-══════════════════════════════════════════════════
-
-DB_HOST=localhost
-DB_USER=ute_app
-DB_PASSWORD=tu_contraseña_muy_segura_aqui
-DB_NAME=ute_mapa
-JWT_SECRET=string_aleatorio_muy_largo_de_al_menos_64_caracteres
-ALLOWED_ORIGIN=http://127.0.0.1:5500
-PORT=3000
-*/

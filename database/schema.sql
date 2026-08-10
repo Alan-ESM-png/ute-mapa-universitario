@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS auditoria (
   detalle     JSON,
   ip_origen   VARCHAR(45),
   registrado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON SET NULL
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ── 20. INTENTOS DE LOGIN (protección fuerza bruta) ───────────────
@@ -219,20 +219,20 @@ CREATE TABLE IF NOT EXISTS login_intentos (
 -- DATOS INICIALES – Edificios
 -- ─────────────────────────────────────────────────────────────────
 INSERT INTO edificios (id, nombre, tipo_id, latitud, longitud, color_hex, horario, capacidad_total, labs, aulas, salas) VALUES
-('T1','Taller T1 – QTA y Mantenimiento',   2, 25.8289500, -100.2864500,'#BF360C','Lun–Vie 7:00–20:00 h', 6, 3, 2, 1),
-('T2','Taller T2 – Mantenimiento Industrial',2, 25.8301000,-100.2864500,'#4527A0','Lun–Vie 7:00–20:00 h', 4, 3, 1, 0),
-('T3','Taller T3 – Mecatrónica',             2, 25.8312000,-100.2864500,'#1A237E','Lun–Vie 7:00–20:00 h', 4, 4, 0, 0),
-('D1','D1 – Rectoría, Sec. Académica y Adm.',1, 25.8290500,-100.2848000,'#F4821F','Lun–Vie 8:00–20:00 h',10, 0, 6, 4),
-('D8','D8 – Auditorio / Cafetería / Enfermería',3,25.8301000,-100.2842000,'#2E7D32','Lun–Vie 7:00–21:00 h', 5, 0, 2, 3),
-('D2','D2 – Desarrollo de Negocios / Mercadotecnia',1,25.8293000,-100.2824000,'#1565C0','Lun–Vie 7:00–21:00 h',12, 2, 8, 2),
-('D3','D3 – Vinculación / Mantenimiento / Caja',1,25.8301000,-100.2823500,'#00897B','Lun–Vie 7:00–21:00 h',14, 3, 9, 2),
-('D4','D4 – Tecnologías de la Información',  1, 25.8308500,-100.2823500,'#6A1B9A','Lun–Vie 7:00–22:00 h',16, 6, 8, 2),
-('D5','D5 – Mecatrónica Área Automatización',1, 25.8316500,-100.2830000,'#00838F','Lun–Vie 7:00–21:00 h',14, 5, 7, 2),
-('D6','D6 – Servicios Escolares / Lengua Inglesa',1,25.8320000,-100.2821000,'#AD1457','Lun–Vie 7:00–21:00 h',12, 2, 8, 2),
-('D7','D7 – Mecatrónica Área Auto. (T2)',    1, 25.8315000,-100.2821500,'#E65100','Lun–Vie 7:00–21:00 h',10, 4, 5, 1);
+('T1','Taller T1 – QTA y Mantenimiento',   2, 25.829909, -100.278461,'#BF360C','Lun–Vie 7:00–20:00 h', 6, 3, 2, 1),
+('T2','Taller T2 – Mantenimiento Industrial',2, 25.829078,-100.278423,'#4527A0','Lun–Vie 7:00–20:00 h', 4, 3, 1, 0),
+('T3','Taller T3 – Mecatrónica',             2, 25.830372,-100.277758,'#1A237E','Lun–Vie 7:00–20:00 h', 4, 4, 0, 0),
+('D1','D1 – Rectoría, Sec. Académica y Adm.',1, 25.829213,-100.277678,'#F4821F','Lun–Vie 8:00–20:00 h',10, 0, 6, 4),
+('D8','D8 – Auditorio / Cafetería / Enfermería',3,25.830469,-100.276954,'#2E7D32','Lun–Vie 7:00–21:00 h', 5, 0, 2, 3),
+('D2','D2 – Desarrollo de Negocios / Mercadotecnia',1,25.829342,-100.276174,'#1565C0','Lun–Vie 7:00–21:00 h',12, 2, 8, 2),
+('D3','D3 – Vinculación / Mantenimiento / Caja',1,25.829838,-100.276191,'#00897B','Lun–Vie 7:00–21:00 h',14, 3, 9, 2),
+('D4','D4 – Tecnologías de la Información',  1, 25.830447,-100.276236,'#6A1B9A','Lun–Vie 7:00–22:00 h',16, 6, 8, 2),
+('D5','D5 – Mecatrónica Área Automatización',1, 25.831059,-100.276691,'#00838F','Lun–Vie 7:00–21:00 h',14, 5, 7, 2),
+('D6','D6 – Servicios Escolares / Lengua Inglesa',1,25.831654,-100.276759,'#AD1457','Lun–Vie 7:00–21:00 h',12, 2, 8, 2),
+('D7','D7 – Mecatrónica Área Auto. (T2)',    1, 25.830974,-100.276175,'#E65100','Lun–Vie 7:00–21:00 h',10, 4, 5, 1);
 
--- Admin demo (BCrypt hash de 'admin123' con factor 12 – REEMPLAZAR EN PROD)
+-- Usuarios demo con hashes BCrypt reales (factor 12)
 INSERT INTO usuarios (nombre, email, password_hash, rol_id, avatar) VALUES
-('Admin Sistema',   'admin@ute.edu.mx',  '$2b$12$PLACEHOLDER_HASH_ADMIN',  4, 'AS'),
-('María Rodríguez', 'maria@ute.edu.mx',  '$2b$12$PLACEHOLDER_HASH_ALUMNO', 2, 'MR'),
-('Carlos Empleado', 'carlos@ute.edu.mx', '$2b$12$PLACEHOLDER_HASH_EMP',    3, 'CE');
+('Admin Sistema',   'admin@ute.edu.mx',  '$2b$12$0IvcmGQd8N1RB3Q/rQgplOj83J8cUXwwcYEH76beFi2efUpD.OjGu',  4, 'AS'),
+('María Rodríguez', 'maria@ute.edu.mx',  '$2b$12$3xCVr7b73vGKd7qcfPPqD.lIRMhpVoD/ZSxi4C9FHfgj65HN2IWfO', 2, 'MR'),
+('Carlos Empleado', 'carlos@ute.edu.mx', '$2b$12$7p2QsjX6/2xoMnT3A6tae.byNKvjjTuQBmR90OJx69qeynVmvC6SS',    3, 'CE');

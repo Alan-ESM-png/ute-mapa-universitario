@@ -295,7 +295,7 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modalEditar')">Cancelar</button>
       <button class="btn btn-danger btn-sm" onclick="deleteFromModal()"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
-      <button class="btn btn-primary" onclick="saveEdificio()"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
+      <button class="btn btn-primary" id="btnSaveEdificio" onclick="saveEdificio()"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
     </div>
   </div>
 </div>
@@ -353,7 +353,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modalAdd')">Cancelar</button>
-      <button class="btn btn-primary" onclick="addEdificio()"><i class="fa-solid fa-check"></i> Agregar Edificio</button>
+      <button class="btn btn-primary" id="btnAddEdificio" onclick="addEdificio()"><i class="fa-solid fa-check"></i> Agregar Edificio</button>
     </div>
   </div>
 </div>
@@ -361,6 +361,7 @@
 <div id="toast-c"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/edificios.js"></script>
 <script src="../js/data.js"></script>

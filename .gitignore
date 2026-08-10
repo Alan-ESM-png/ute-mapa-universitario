@@ -11,3 +11,10 @@ Desktop.ini
 
 # Dependencias (si en el futuro se usan)
 node_modules/
+qr-mapa.png
+qr.html
+
+# Seguridad — NUNCA subir credenciales al repo
+.env
+*.env
+database/.env

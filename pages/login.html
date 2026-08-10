@@ -15,7 +15,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       background: var(--azul);
-      overflow: hidden;
+      overflow: auto; overflow-x: hidden;
     }
 
     /* ── LADO IZQUIERDO – Branding ── */
@@ -198,12 +198,13 @@
   </div>
 </div>
 
+<script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
 <script>
-  // Si ya hay sesión activa, redirigir
+  // Si ya hay sesión activa, redirigir directamente
   const _existing = Auth.getSession();
   if (_existing) {
-    window.location.href = _existing.role === 'admin' ? 'admin/index.html' : 'pages/mapa.html';
+    window.location.href = _existing.role === 'admin' ? '../admin/index.html' : '../index.html';
   }
 
   function showErr(msg) {
@@ -212,24 +213,22 @@
     el.classList.add('show');
   }
 
-  function doLogin() {
+  async function doLogin() {
     const email = document.getElementById('email').value.trim();
     const pass  = document.getElementById('password').value;
     document.getElementById('errMsg').classList.remove('show');
 
     if (!email || !pass) { showErr('Completa todos los campos.'); return; }
 
-    const res = Auth.login(email, pass);
+    const res = await Auth.login(email, pass);
     if (!res.ok) { showErr(res.msg); return; }
 
-    // Redirigir según rol
-    if (res.user.role === 'admin') window.location.href = 'admin/index.html';
-    else window.location.href = 'pages/mapa.html';
+    window.location.href = res.user.role === 'admin' ? '../admin/index.html' : '../index.html';
   }
 
   function doVisitor() {
     Auth.loginAsVisitor();
-    window.location.href = 'pages/mapa.html';
+    window.location.href = '../index.html';
   }
 
   document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });

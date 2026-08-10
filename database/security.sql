@@ -12,7 +12,7 @@
 
 -- Usuario de SOLO LECTURA (para visitantes/alumnos)
 CREATE USER IF NOT EXISTS 'ute_reader'@'localhost'
-  IDENTIFIED BY 'CAMBIAR_POR_CONTRASEÑA_SEGURA_LECTOR';
+  IDENTIFIED BY 'UteMapa2026!';
 
 GRANT SELECT ON ute_mapa.edificios         TO 'ute_reader'@'localhost';
 GRANT SELECT ON ute_mapa.carreras          TO 'ute_reader'@'localhost';
@@ -26,7 +26,7 @@ GRANT SELECT ON ute_mapa.tipos_ruta        TO 'ute_reader'@'localhost';
 
 -- Usuario de APLICACIÓN (backend Node/PHP, lee y escribe datos del campus)
 CREATE USER IF NOT EXISTS 'ute_app'@'localhost'
-  IDENTIFIED BY 'CAMBIAR_POR_CONTRASEÑA_SEGURA_APP';
+  IDENTIFIED BY 'UteMapa2026!';
 
 GRANT SELECT, INSERT, UPDATE ON ute_mapa.edificios        TO 'ute_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON ute_mapa.carreras         TO 'ute_app'@'localhost';
@@ -40,15 +40,22 @@ GRANT SELECT, INSERT, UPDATE ON ute_mapa.maestros         TO 'ute_app'@'localhos
 GRANT SELECT, INSERT, UPDATE ON ute_mapa.maestro_edificio TO 'ute_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON ute_mapa.edificio_carrera TO 'ute_app'@'localhost';
 GRANT SELECT, INSERT        ON ute_mapa.sesiones          TO 'ute_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON ute_mapa.sesiones          TO 'ute_app'@'localhost';
 GRANT SELECT, INSERT        ON ute_mapa.auditoria         TO 'ute_app'@'localhost';
 GRANT SELECT, INSERT        ON ute_mapa.login_intentos    TO 'ute_app'@'localhost';
-GRANT SELECT                ON ute_mapa.usuarios          TO 'ute_app'@'localhost';
+GRANT SELECT, UPDATE        ON ute_mapa.usuarios          TO 'ute_app'@'localhost';
 GRANT SELECT                ON ute_mapa.roles             TO 'ute_app'@'localhost';
+-- Vistas públicas (necesarias para GET /api/edificios y GET /api/rutas)
+GRANT SELECT ON ute_mapa.v_edificios_publico TO 'ute_app'@'localhost';
+GRANT SELECT ON ute_mapa.v_rutas_publico     TO 'ute_app'@'localhost';
+-- Procedimientos almacenados (login y coordenadas)
+GRANT EXECUTE ON PROCEDURE ute_mapa.sp_verificar_intentos_login  TO 'ute_app'@'localhost';
+GRANT EXECUTE ON PROCEDURE ute_mapa.sp_actualizar_coordenadas    TO 'ute_app'@'localhost';
 -- NO tiene DELETE en tablas críticas
 
 -- Usuario de AUTENTICACIÓN (solo maneja login/usuarios)
 CREATE USER IF NOT EXISTS 'ute_auth'@'localhost'
-  IDENTIFIED BY 'CAMBIAR_POR_CONTRASEÑA_SEGURA_AUTH';
+  IDENTIFIED BY 'UteMapa2026!';
 
 GRANT SELECT, UPDATE         ON ute_mapa.usuarios       TO 'ute_auth'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON ute_mapa.sesiones       TO 'ute_auth'@'localhost';
@@ -180,6 +187,9 @@ ALTER TABLE paradas          ADD INDEX idx_ruta_sent    (ruta_id, sentido, orden
   5. LIMPIEZA AUTOMÁTICA (EVENT SCHEDULER)
 ═══════════════════════════════════════════════════════════════════
 */
+-- IMPORTANTE: Para que esto persista tras reiniciar MySQL, agregar tambien en my.cnf:
+-- [mysqld]
+-- event_scheduler = ON
 SET GLOBAL event_scheduler = ON;
 
 -- Limpiar sesiones expiradas cada hora

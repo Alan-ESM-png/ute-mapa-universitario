@@ -32,7 +32,7 @@
       <div class="profile-role-badge" id="pRole">—</div>
     </div>
     <div class="profile-actions">
-      <button class="btn btn-outline" style="border-color:rgba(255,255,255,.3);color:#fff" onclick="Auth.logout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+      <button class="btn btn-ghost" style="border-color:rgba(255,255,255,.3);color:#fff" onclick="Auth.logout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
     </div>
   </div>
 
@@ -69,11 +69,12 @@
 
 <div id="toast-c"></div>
 
+<script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
 <script>
 'use strict';
 var s = Auth.getSession();
-if (!s) window.location.href = '../index.html';
+if (!s) { window.location.href = '../index.html'; return; }
 
 Auth.injectUserBadge('userBadge');
 

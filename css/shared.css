@@ -539,3 +539,118 @@ textarea.form-control { resize: vertical; min-height: 72px; }
   body { overflow: visible !important; }
   .info-panel { width: 100% !important; max-width: 100% !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   ACCESIBILIDAD — Estados de foco visibles (teclado)
+   Solo se muestran cuando el usuario navega con Tab, no con mouse
+══════════════════════════════════════════════════════════════ */
+:focus-visible {
+  outline: 2.5px solid var(--naranja) !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+}
+
+/* Quitar el foco feo default de navegadores */
+:focus { outline: none; }
+:focus:not(:focus-visible) { outline: none !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   FEEDBACK AL PRESIONAR — Escala sutil en botones y tarjetas
+   Da sensación de "estoy presionando algo real"
+══════════════════════════════════════════════════════════════ */
+.btn:active,
+.btn-primary:active,
+.btn-ghost:active,
+.btn-danger:active,
+.nav-link:active,
+.e-item:active,
+.quick-card:active,
+.ruta-card:active,
+.layer-opt:active,
+.u-drop-item:active {
+  transform: scale(0.96);
+  transition: transform .08s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ÁREAS TÁCTILES MÍNIMAS — 44px para dedos en móvil
+   Estándar Apple HIG y Material Design
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .btn,
+  .btn-primary,
+  .btn-ghost,
+  .btn-danger,
+  .nav-link,
+  .layer-opt {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Asegurar que los iconos interactivos tengan área suficiente */
+  .sb-toggle,
+  .info-close,
+  .sheet-close,
+  #btnDark,
+  #btnLayers,
+  #btnCenter,
+  #btnMyLoc {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BOTÓN EN CARGA — Evita doble click mientras se guarda
+══════════════════════════════════════════════════════════════ */
+.btn.loading {
+  pointer-events: none;
+  opacity: 0.65;
+  position: relative;
+  color: transparent !important;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 18px; height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 2.5px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: btnSpin .55s linear infinite;
+}
+
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPETAR PREFERENCIA DE MOVIMIENTO REDUCIDO
+   Usuarios que activan "Reducir movimiento" en su SO
+══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ESTADOS DESHABILITADOS — Más claros visualmente
+══════════════════════════════════════════════════════════════ */
+.btn:disabled,
+.btn[disabled],
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(30%);
+}
