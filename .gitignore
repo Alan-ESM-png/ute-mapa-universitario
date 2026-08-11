@@ -9,10 +9,11 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
-# Dependencias (si en el futuro se usan)
+# Dependencias
 node_modules/
-qr-mapa.png
-qr.html
+
+# Material extra (docs, scripts, temp)
+_material_extra/
 
 # Seguridad — NUNCA subir credenciales al repo
 .env
