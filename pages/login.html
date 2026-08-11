@@ -104,19 +104,6 @@
     }
     .visitor-btn:hover { border-color: var(--naranja); color: var(--naranja); background: var(--naranja-bg); }
 
-    .demo-hint {
-      margin-top: 1.5rem;
-      background: var(--gris-50); border: 1px solid var(--gris-200);
-      border-radius: var(--radius-sm); padding: .85rem 1rem; font-size: .72rem;
-    }
-    .demo-hint strong { color: var(--azul); display: block; margin-bottom: .4rem; }
-    .demo-hint strong i { transition: transform .2s ease; }
-    .demo-hint.expanded strong i.fa-chevron-down { transform: rotate(180deg); }
-    .demo-rows { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
-    .demo-hint.expanded .demo-rows { max-height: 120px; }
-    .demo-row { display: flex; justify-content: space-between; padding: .2rem 0; color: var(--gris-600); }
-    .demo-row code { background: var(--gris-200); border-radius: 4px; padding: 1px 5px; font-size: .68rem; }
-
     /* Responsive */
     @media (max-width: 768px) {
       body { grid-template-columns: 1fr; }
@@ -183,18 +170,6 @@
     <button class="visitor-btn" onclick="doVisitor()">
       <i class="fa-solid fa-eye"></i> &nbsp;Entrar como Visitante
     </button>
-
-    <!-- Hint de demo (colapsable para no exponer credenciales) -->
-    <div class="demo-hint" id="demoHint">
-      <strong style="cursor:pointer;user-select:none" onclick="document.getElementById('demoHint').classList.toggle('expanded')">
-        <i class="fa-solid fa-key"></i> Cuentas de demostración <i class="fa-solid fa-chevron-down" style="font-size:.6rem;margin-left:.3rem"></i>
-      </strong>
-      <div class="demo-rows">
-        <div class="demo-row"><span>Administrador</span><code>admin@ute.edu.mx / admin123</code></div>
-        <div class="demo-row"><span>Alumno</span><code>maria@ute.edu.mx / alumno123</code></div>
-        <div class="demo-row"><span>Empleado</span><code>carlos@ute.edu.mx / emp123</code></div>
-      </div>
-    </div>
   </div>
 </div>
 
