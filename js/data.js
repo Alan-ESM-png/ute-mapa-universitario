@@ -83,28 +83,6 @@ const RUTAS_DATA = [
     coords_ida: [[25.7815, -100.1875], [25.7880, -100.2100], [25.8100, -100.2500], [25.83005, -100.28320]],
     coords_vuelta: [[25.83005, -100.28320], [25.8100, -100.2500], [25.7880, -100.2100], [25.7815, -100.1875]]
   }, {
-    id: 'ruta-pilares', nombre: 'Ruta 1 – Pilares / Clínica 6 / UTE', tipo: 'publica',
-    operador: 'Transporte Urbano Nuevo León', color: '#6A1B9A', colorFondo: '#F3E5F5',
-    horarios: { entrada: ['6:00', '7:00', '8:00'], salida: ['14:20', '21:45'] },
-    costo: 'Tarifa NL Camión / Mi Muevo',
-    metodoPago: ['Efectivo (tarifa NL)', 'Tarjeta Mi Muevo'],
-    nota: 'Circuito con frecuencia de 40 min a 1 hora aproximadamente. Sale de Caseta Ruta 1 en Av. Universidad.',
-    paradas_ida: ['Caseta Ruta 1 (Av. Universidad)', 'Julio Cepeda (1ra parada)', 'Sendero', 'Carretera Laredo', 'Puente Caracol', 'Libramiento Noreste', 'UTE – Entrada'],
-    paradas_vuelta: ['UTE – Entrada', 'Libramiento Puente Frente UTE', 'Carretera Laredo', 'Sendero', 'Av. Universidad', 'Clínica 6', 'Caseta Ruta 1'],
-    coords_ida: [[25.7590, -100.2830], [25.7620, -100.2780], [25.7720, -100.2760], [25.7950, -100.2820], [25.8080, -100.2850], [25.8220, -100.2830], [25.83005, -100.28320]],
-    coords_vuelta: [[25.83005, -100.28320], [25.8220, -100.2830], [25.7950, -100.2820], [25.7720, -100.2760], [25.7620, -100.2780], [25.7600, -100.2820], [25.7590, -100.2830]]
-  }, {
-    id: 'ruta-alcala', nombre: 'Villas de Alcalá – Real San Pedro / UTE', tipo: 'privada',
-    operador: 'Transporte Privado', color: '#00838F', colorFondo: '#E0F7FA',
-    horarios: { entrada: ['6:00', '7:00'], salida: ['14:20', '21:45'] },
-    costo: 'Pago directo al operador',
-    metodoPago: ['Efectivo', 'Transferencia'],
-    nota: 'Contacto: Sr. Cipriano Avalos – Cel. 81-36-03-62-04. Estar 10 minutos antes de la hora marcada en cada parada.',
-    paradas_ida: ['Tortillería Clarita (6:00am)', 'Pizzas (6:01am)', 'Toldo Rojo (6:02am)', 'Portal de Alcalá (6:05am)', 'Bodega Aurrera (6:07am)', 'Six 1er Sector (6:08am)', 'OXXO Olimpia (6:20am)', 'UTE (7:00am)'],
-    paradas_vuelta: ['UTE', 'OXXO Olimpia', 'Six 1er Sector', 'Bodega Aurrera', 'Portal de Alcalá', 'Toldo Rojo', 'Pizzas', 'Tortillería Clarita'],
-    coords_ida: [[25.7850, -100.2950], [25.7845, -100.2930], [25.7840, -100.2910], [25.7835, -100.2890], [25.7870, -100.2860], [25.7890, -100.2840], [25.7950, -100.2820], [25.83005, -100.28320]],
-    coords_vuelta: [[25.83005, -100.28320], [25.7950, -100.2820], [25.7890, -100.2840], [25.7870, -100.2860], [25.7835, -100.2890], [25.7840, -100.2910], [25.7845, -100.2930], [25.7850, -100.2950]]
-  }, {
     id: 'ruta-apodaca-lbl', nombre: 'Ruta Apodaca Matutino – LBL', tipo: 'privada',
     operador: 'Transportes LBL', color: '#BF360C', colorFondo: '#FBE9E7',
     horarios: { entrada: ['6:00'], salida: ['14:20', '21:45'] },
@@ -115,6 +93,79 @@ const RUTAS_DATA = [
     paradas_vuelta: ['UTE – Entrada', 'Libramiento Noreste', 'Av. Miguel Alemán', 'Apodaca Centro'],
     coords_ida: [[25.7815, -100.1875], [25.7950, -100.2150], [25.8150, -100.2580], [25.83005, -100.28320]],
     coords_vuelta: [[25.83005, -100.28320], [25.8150, -100.2580], [25.7950, -100.2150], [25.7815, -100.1875]]
+  }, {
+    id: 'ruta-pilares-villas', nombre: 'Ruta Pilares-Villas / Clínica 6 – Alcalá – UTE', tipo: 'publica',
+    operador: 'Transporte Urbano Nuevo León', color: '#6A1B9A', colorFondo: '#F3E5F5',
+    horarios: { entrada: ['6:00', '7:00'], salida: ['14:20', '21:45'] },
+    costo: 'Tarifa NL Camión / Mi Muevo',
+    metodoPago: ['Efectivo (tarifa NL)', 'Tarjeta Mi Muevo'],
+    nota: 'Circuito combinado: Clínica 6 → Pilares → Sendero → Carretera Laredo → Villas de Alcalá → Real San Pedro → UTE. Frecuencia 40 min a 1 hora. Contacto Villas: Sr. Cipriano Avalos 81-36-03-62-04.',
+    paradas_ida: [
+      '1. Caseta Ruta 1 (Av. Universidad)',
+      '2. Julio Cepeda – 1ra Parada',
+      '3. Sendero',
+      '4. Carretera Laredo (entronque)',
+      '5. Puente Caracol',
+      '6. Libramiento Noreste',
+      '7. Tortillería Clarita (6:00am)',
+      '8. Pizzas (6:01am)',
+      '9. Toldo Rojo (6:02am)',
+      '10. Portal de Alcalá (6:05am)',
+      '11. Bodega Aurrera (6:07am)',
+      '12. Six 1er Sector (6:08am)',
+      '13. OXXO Olimpia (6:20am)',
+      '14. Carretera Zuazua / Carretera Laredo',
+      '15. UTE – Entrada Principal (7:00am)'
+    ],
+    paradas_vuelta: [
+      'UTE – Entrada Principal',
+      'OXXO Olimpia',
+      'Six 1er Sector',
+      'Bodega Aurrera',
+      'Portal de Alcalá',
+      'Toldo Rojo',
+      'Pizzas',
+      'Tortillería Clarita',
+      'Libramiento Puente Frente UTE',
+      'Carretera Laredo',
+      'Sendero',
+      'Av. Universidad',
+      'Clínica 6',
+      'Caseta Ruta 1'
+    ],
+    coords_ida: [
+      [25.7590, -100.2830],
+      [25.7620, -100.2780],
+      [25.7700, -100.2750],
+      [25.7850, -100.2800],
+      [25.8000, -100.2830],
+      [25.8150, -100.2820],
+      [25.7850, -100.2950],
+      [25.7845, -100.2930],
+      [25.7840, -100.2910],
+      [25.7835, -100.2890],
+      [25.7870, -100.2860],
+      [25.7890, -100.2840],
+      [25.7950, -100.2820],
+      [25.8100, -100.2810],
+      [25.83005, -100.28320]
+    ],
+    coords_vuelta: [
+      [25.83005, -100.28320],
+      [25.7950, -100.2820],
+      [25.7890, -100.2840],
+      [25.7870, -100.2860],
+      [25.7835, -100.2890],
+      [25.7840, -100.2910],
+      [25.7845, -100.2930],
+      [25.7850, -100.2950],
+      [25.8200, -100.2830],
+      [25.7900, -100.2800],
+      [25.7720, -100.2760],
+      [25.7620, -100.2780],
+      [25.7600, -100.2820],
+      [25.7590, -100.2830]
+    ]
   }
 ];
 
