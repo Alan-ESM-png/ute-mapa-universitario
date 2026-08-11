@@ -16,6 +16,10 @@
 .nav-brand{display:flex;align-items:center;gap:.6rem;flex-shrink:0}
 .nav-logo{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.86rem;color:#fff;letter-spacing:-.01em;border:1px solid rgba(255,255,255,.2);transition:transform var(--ease-spring)}
 .nav-logo:hover{transform:scale(1.08)}
+.nav-logo-img{width:34px;height:34px;border-radius:9px;object-fit:contain;transition:transform var(--ease-spring)}
+.nav-logo-img:hover{transform:scale(1.08)}
+.login-modal-logo-img{width:52px;height:52px;border-radius:12px;object-fit:contain;margin:0 auto .5rem;display:block}
+.brand-logo-img{width:64px;height:64px;border-radius:14px;object-fit:contain;margin-bottom:1.5rem;box-shadow:0 8px 24px rgba(244,130,31,.35)}
 .nav-brand-text .main{font-size:.88rem;font-weight:700;color:#fff;display:block;line-height:1.2}
 .nav-brand-text .sub{font-size:.61rem;color:rgba(255,255,255,.7)}
 .nav-center{display:flex;gap:.2rem}

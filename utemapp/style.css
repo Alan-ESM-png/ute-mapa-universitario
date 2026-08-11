@@ -48,6 +48,7 @@ body{height:100%;overflow:hidden;font-family:var(--font);-webkit-font-smoothing:
 .topbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--top-h);background:linear-gradient(135deg,var(--naranja),var(--naranja-dark));display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;padding-top:max(.5rem,var(--safe-top));box-shadow:0 2px 16px rgba(180,70,0,.3)}
 .topbar-brand{display:flex;align-items:center;gap:.35rem;flex-shrink:0}
 .topbar-logo{width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.65rem;color:#fff}
+.topbar-logo-img{width:28px;height:28px;border-radius:7px;object-fit:contain}
 .topbar-title{font-size:.85rem;font-weight:700;color:#fff}
 .topbar-search{flex:1;position:relative;max-width:280px}
 .topbar-search-ic{position:absolute;left:.5rem;top:50%;transform:translateY(-50%);font-size:.65rem;color:rgba(255,255,255,.5);pointer-events:none}
