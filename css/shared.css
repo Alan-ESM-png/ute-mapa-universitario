@@ -84,8 +84,8 @@
    RESET
 ══════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; scroll-behavior: smooth; }
-body {
+html { font-size: 16px; scroll-behavior: smooth; overflow-x: hidden; }
+body { overflow-x: hidden;
   font-family: var(--font);
   color: var(--gris-900);
   background: #F5F5F5;
@@ -435,8 +435,8 @@ textarea.form-control { resize: vertical; min-height: 72px; }
 .ruta-card{background:var(--blanco);border:1.5px solid var(--gris-200);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);transition:border var(--transition),transform var(--transition)}
 .ruta-card:hover{border-color:var(--naranja);transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .ruta-card-head{padding:1rem 1rem .8rem;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--gris-100)}
-.ruta-nombre{font-size:.92rem;font-weight:700;color:var(--gris-900);line-height:1.3;max-width:200px}
-.ruta-operador{font-size:.7rem;color:var(--gris-400);margin-top:2px}
+.ruta-nombre{font-size:.92rem;font-weight:700;color:var(--gris-900);line-height:1.3;overflow:hidden;text-overflow:ellipsis}
+.ruta-operador{font-size:.7rem;color:var(--gris-400);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ruta-body{padding:1rem}
 .meta-row{display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--gris-700);margin-bottom:.4rem}
 .meta-ico{font-size:.9rem;width:18px;text-align:center;flex-shrink:0;color:var(--naranja)}
@@ -447,7 +447,7 @@ textarea.form-control { resize: vertical; min-height: 72px; }
 .p-tab.active{border-color:var(--naranja);background:var(--naranja-bg);color:var(--naranja-dark)}
 .paradas-label{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gris-400);margin-bottom:.45rem;display:flex;align-items:center;gap:.35rem}
 .paradas-label i{color:var(--naranja)}
-.parada-item{display:flex;align-items:flex-start;gap:.45rem;font-size:.77rem;color:var(--gris-700);padding:.3rem 0;border-bottom:1px solid var(--gris-100)}
+.parada-item{display:flex;align-items:flex-start;gap:.45rem;font-size:.77rem;color:var(--gris-700);padding:.3rem 0;border-bottom:1px solid var(--gris-100);word-break:break-word;overflow-wrap:break-word}
 .parada-item:last-child{border:none}
 .parada-dot{width:8px;height:8px;min-width:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
 .parada-dot.o{border:2px solid var(--naranja)}
