@@ -22,16 +22,11 @@ html{height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{height:100%;overflow:hidden;font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;background:#000;overscroll-behavior:none;-webkit-overscroll-behavior:none}
 
 /* ── REUSABLE ── */
-.tappable{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.fcol{display:flex;flex-direction:column}
-.fcen{display:flex;align-items:center;justify-content:center}
-.frow{display:flex;align-items:center}
-.badge{font-weight:800;color:#fff}
-.fixed-full{position:fixed;inset:0}
+
 .bar{display:none;position:fixed;top:0;left:0;right:0;z-index:2000;color:#fff;text-align:center;padding:.45rem 1rem;font-size:.72rem;font-weight:600}
 .bar.show{display:block;animation:slideDown .3s ease}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
-.panel-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior:contain;overflow-y:auto}
+
 .status-badge{font-weight:600;display:inline-flex;align-items:center;gap:.25rem}
 .status-badge.open,.sts-open{background:var(--verde-bg);color:var(--verde)}
 .status-badge.closed,.sts-closed{background:var(--rojo-bg);color:var(--rojo)}
@@ -47,7 +42,7 @@ body{height:100%;overflow:hidden;font-family:var(--font);-webkit-font-smoothing:
 /* ── TOPBAR ── */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--top-h);background:linear-gradient(135deg,var(--naranja),var(--naranja-dark));display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;padding-top:max(.5rem,var(--safe-top));box-shadow:0 2px 16px rgba(180,70,0,.3)}
 .topbar-brand{display:flex;align-items:center;gap:.35rem;flex-shrink:0}
-.topbar-logo{width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.65rem;color:#fff}
+
 .topbar-logo-img{width:28px;height:28px;border-radius:7px;object-fit:contain}
 .topbar-title{font-size:.85rem;font-weight:700;color:#fff}
 .topbar-search{flex:1;position:relative;max-width:280px}

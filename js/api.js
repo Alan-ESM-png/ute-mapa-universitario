@@ -148,14 +148,6 @@ const API = (() => {
    * @param {number} lat
    * @param {number} lng
    */
-  async function updateCoordenadas(id, lat, lng) {
-    return await request('/api/edificios/' + id + '/coordenadas', {
-      method: 'PATCH',
-      auth: true,
-      body: { lat, lng }
-    });
-  }
-
   /* ──────────────────────────────────────────────
      Endpoints públicos — Rutas
   ────────────────────────────────────────────── */
@@ -273,7 +265,6 @@ const API = (() => {
   return {
     getEdificios,
     updateEdificio,
-    updateCoordenadas,
     getRutas,
     login,
     logout,

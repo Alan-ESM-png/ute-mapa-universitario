@@ -177,6 +177,13 @@ function renderSearchResults(q) {
   box.innerHTML = html;
 }
 
+/** Resalta coincidencias de busqueda en texto */
+function hl(str, q) {
+  if (!q) return str;
+  var esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(new RegExp('(' + esc + ')', 'gi'), '<span class="sr-match">$1</span>');
+}
+
 /** Construye un item de resultado para una ruta. */
 function buildSRRuta(r, q) {
   function hl(str) {
@@ -186,7 +193,7 @@ function buildSRRuta(r, q) {
   }
   return '<div class="sr-item" onclick="if(!rutasOn)toggleRutas();toggleRutaInd(\'' + r.id + '\');closeSearch();">' +
     '<div class="sr-badge" style="background:' + r.color + '"><i class="fa-solid fa-bus"></i></div>' +
-    '<div class="sr-info"><div class="sr-name">' + hl(r.nombre) + '</div>' +
+    '<div class="sr-info"><div class="sr-name">' + hl(r.nombre, q) + '</div>' +
     '<div class="sr-meta"><span class="sr-type">' + (r.tipo === 'publica' ? '<i class="fa-solid fa-bus-simple"></i> Público' : '<i class="fa-solid fa-shield-halved"></i> Escolar') + '</span>' +
     '<span class="sr-status" style="background:var(--naranja-bg);color:var(--naranja-dark)">' + r.costo + '</span></div></div>' +
     '<span class="sr-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>';
@@ -202,7 +209,7 @@ function buildSRItem(e, q) {
     return str.replace(new RegExp('(' + escaped + ')', 'gi'), '<span class="sr-match">$1</span>');
   }
   return '<div class="sr-item" onclick="quickSelect(\'' + e.id + '\')"><div class="sr-badge" style="background:' + e.color + '">' + e.id + '</div>' +
-    '<div class="sr-info"><div class="sr-name">' + hl(e.nombre) + '</div>' +
+    '<div class="sr-info"><div class="sr-name">' + hl(e.nombre, q) + '</div>' +
     '<div class="sr-meta"><span class="sr-type">' + (tipos[e.tipo] || e.tipo) + '</span>' +
     '<span class="sr-status ' + (st.open ? 'open' : 'closed') + '">' + (st.open ? 'Abierto' : 'Cerrado') + '</span></div></div>' +
     '<span class="sr-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>';
@@ -301,18 +308,4 @@ function nextOnboardingStep() {
 function endOnboarding() {
   const oo = $('onboardingOverlay'); if (oo) oo.style.display = 'none';
   try { localStorage.setItem('ute_onboarded', 'true'); } catch {}
-}
-
-/* Helper: muestra ruta especifica desde busqueda (corrige logica invertida) */
-function showRutaFromSearch(id) {
-  try {
-    if (!map) return;
-    if (!rutasOn) { rutasOn = true; const rt = document.getElementById('rutasToggle'); if (rt) rt.classList.add('on'); }
-    if (!rutaVis[id]) { rutaVis[id] = true; map.addLayer(rutaLayers[id]); }
-    const el = document.getElementById('rb-' + id);
-    if (el) { el.textContent = 'Visible'; el.classList.add('on'); }
-    const rs = document.getElementById('rutasSub');
-    if (rs) rs.classList.add('open');
-    toast('Ruta activada en el mapa', 'success');
-  } catch(_) {}
 }

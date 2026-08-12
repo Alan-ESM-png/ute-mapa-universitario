@@ -14,21 +14,6 @@
 /* ── 1. NAVBAR ── */
 .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:calc(var(--nav-h) + var(--safe-top));padding-top:var(--safe-top);padding-left:max(1rem, var(--safe-left));padding-right:max(1rem, var(--safe-right));background:linear-gradient(135deg,var(--naranja) 0%,var(--naranja-dark) 100%);display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(180,70,0,.28)}
 .nav-brand{display:flex;align-items:center;gap:.6rem;flex-shrink:0}
-.nav-logo{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.86rem;color:#fff;letter-spacing:-.01em;border:1px solid rgba(255,255,255,.2);transition:transform var(--ease-spring)}
-.nav-logo:hover{transform:scale(1.08)}
-.nav-logo-img{width:34px;height:34px;border-radius:9px;object-fit:contain;transition:transform var(--ease-spring)}
-.nav-logo-img:hover{transform:scale(1.08)}
-.login-modal-logo-img{width:52px;height:52px;border-radius:12px;object-fit:contain;margin:0 auto .5rem;display:block}
-.brand-logo-img{width:64px;height:64px;border-radius:14px;object-fit:contain;margin-bottom:1.5rem;box-shadow:0 8px 24px rgba(244,130,31,.35)}
-.nav-brand-text .main{font-size:.88rem;font-weight:700;color:#fff;display:block;line-height:1.2}
-.nav-brand-text .sub{font-size:.61rem;color:rgba(255,255,255,.7)}
-.nav-center{display:flex;gap:.2rem}
-.nav-link{display:flex;align-items:center;gap:.38rem;color:rgba(255,255,255,.85);font-size:.78rem;font-weight:500;padding:.38rem .82rem;border-radius:var(--radius-sm);transition:all var(--ease);position:relative}
-.nav-link i{font-size:.75rem;width:16px;text-align:center}
-.nav-link:hover,.nav-link.active{background:rgba(0,0,0,.18);color:#fff}
-.nav-link:active{transform:scale(.95)}
-.nav-right{display:flex;align-items:center;gap:.45rem}
-
 /* Login button in navbar */
 .btn-login-nav{display:flex;align-items:center;gap:.38rem;background:#fff;color:var(--naranja);font-size:.76rem;font-weight:700;padding:.42rem .95rem;border-radius:20px;cursor:pointer;transition:all var(--ease);font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .btn-login-nav i{font-size:.7rem}
@@ -306,11 +291,6 @@
 .login-divider::before,.login-divider::after{content:'';flex:1;border-top:1px solid var(--gris-200)}
 .login-visitor-btn{width:100%;padding:.6rem;background:var(--gris-50);border:1.5px solid var(--gris-200);border-radius:var(--radius-sm);font-size:.8rem;font-weight:600;color:var(--gris-700);cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:.4rem;font-family:var(--font)}
 .login-visitor-btn:hover{border-color:var(--naranja);color:var(--naranja);background:var(--naranja-bg)}
-.login-demo-hint{margin-top:1rem;background:var(--gris-50);border:1px solid var(--gris-200);border-radius:var(--radius-sm);padding:.7rem .85rem;font-size:.7rem}
-.login-demo-hint strong{color:var(--azul);display:block;margin-bottom:.3rem;font-size:.73rem}
-.login-demo-hint .demo-row{display:flex;justify-content:space-between;padding:.15rem 0;color:var(--gris-600)}
-.login-demo-hint .demo-row code{background:var(--gris-200);border-radius:4px;padding:1px 5px;font-size:.65rem}
-
 /* ── 12. ONBOARDING ── */
 .onboarding-overlay{position:fixed;inset:0;z-index:5000;pointer-events:none}
 .onboarding-step{position:fixed;background:var(--azul);color:#fff;border-radius:var(--radius-md);padding:1rem 1.1rem;max-width:268px;box-shadow:var(--shadow-xl);pointer-events:all;animation:tipIn .3s var(--ease-spring);z-index:5001;box-sizing:border-box}
@@ -318,7 +298,6 @@
 .onboarding-step::before{content:'';position:absolute;border:7px solid transparent}
 .tip-arrow-left::before{left:-14px;top:50%;transform:translateY(-50%);border-right-color:var(--azul)}
 .tip-arrow-top::before{top:-14px;left:50%;transform:translateX(-50%);border-bottom-color:var(--azul)}
-.tip-arrow-bottom::before{bottom:-14px;left:50%;transform:translateX(-50%);border-top-color:var(--azul)}
 .ob-step-num{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.55);margin-bottom:.4rem}
 .ob-title{font-size:.88rem;font-weight:700;margin-bottom:.35rem}
 .ob-desc{font-size:.75rem;line-height:1.6;color:rgba(255,255,255,.82)}
@@ -335,59 +314,6 @@
 .ob-spotlight{position:absolute;border-radius:var(--radius-md);box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none;transition:all .4s ease;border:2.5px solid var(--naranja)}
 
 /* ── 13. TOAST ── */
-#toast-c{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:.45rem;z-index:9999;pointer-events:none}
-.toast{background:var(--gris-900);color:#fff;font-size:.77rem;padding:.58rem .95rem;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:.45rem;pointer-events:all;font-family:var(--font);animation:toastIn .25s ease}
-.toast i{font-size:.85rem;flex-shrink:0}
-.toast.success{background:#1B5E20} .toast.error{background:var(--rojo)}
-.toast.info{background:#1565C0} .toast.warn{background:#E65100}
-@keyframes toastIn{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
-
-/* ── 14. LEAFLET OVERRIDES ── */
-.leaflet-control-layers{display:none!important}
-.leaflet-control-zoom{box-shadow:var(--shadow-md)!important;border:none!important;border-radius:var(--radius-md)!important;overflow:hidden!important}
-.leaflet-control-zoom a{border:none!important;margin:0!important;border-bottom:1px solid var(--gris-100)!important;color:var(--gris-700)!important;font-weight:700!important;background:var(--blanco)!important;width:32px!important;height:32px!important;line-height:32px!important;font-size:1rem!important;transition:all var(--ease)!important}
-.leaflet-control-zoom a:hover{background:var(--naranja-bg)!important;color:var(--naranja)!important}
-.leaflet-control-zoom-out{border-bottom:none!important}
-.leaflet-popup-content-wrapper{border-radius:var(--radius-md)!important;box-shadow:var(--shadow-lg)!important;font-family:'Inter',sans-serif!important;border:1px solid var(--gris-200)!important}
-.leaflet-popup-tip{display:none}
-
-/* ── 15. DARK MODE ── */
-.dark .sidebar,.dark .info-panel,.dark .bottom-sheet,.dark .login-modal{background:var(--gris-50);border-color:var(--gris-200)}
-.dark .sb-head,.dark .sb-filters{border-color:var(--gris-200)}
-.dark .t-row{background:var(--gris-100);border-color:var(--gris-200)}
-.dark .sw input{background:var(--gris-100);border-color:var(--gris-200);color:var(--gris-900)}
-.dark .e-item:hover{background:var(--gris-100)}
-.dark .e-item.active{background:rgba(244,130,31,.1)}
-.dark .i-carrera,.dark .i-salon{background:var(--gris-100);border-color:var(--gris-200)}
-.dark .i-div{border-color:var(--gris-200)}
-.dark .info-breadcrumb{background:var(--gris-100);border-color:var(--gris-200)}
-.dark .search-box-big,.dark .login-modal{background:var(--gris-50);border-color:var(--gris-200)}
-.dark .search-input-row,.dark .login-modal-head{border-color:var(--gris-200)}
-.dark .search-big-input,.dark .login-modal-title{color:var(--gris-900)}
-.dark .sr-item.focused,.dark .sr-item:hover{background:var(--gris-100)}
-.dark .layer-drop,.dark .u-drop{background:var(--gris-50);border-color:var(--gris-200)}
-.dark .layer-opt:hover,.dark .u-item:hover{background:var(--gris-100)}
-.dark .layer-opt.active{background:rgba(244,130,31,.1)}
-.dark .u-div{border-color:var(--gris-200)}
-.dark .login-demo-hint{background:var(--gris-100);border-color:var(--gris-200)}
-.dark .login-visitor-btn{background:var(--gris-100);border-color:var(--gris-200);color:var(--gris-700)}
-.dark .leaflet-control-zoom a{background:var(--gris-50)!important;color:var(--gris-700)!important;border-color:var(--gris-200)!important}
-.dark .leaflet-popup-content-wrapper{background:var(--gris-50)!important;border-color:var(--gris-200)!important;color:var(--gris-900)!important}
-.dark .sb-recents{border-color:var(--gris-200)}
-.dark .recent-chip{background:var(--gris-100);border-color:var(--gris-200)}
-.dark .sheet-handle{background:var(--gris-300)}
-.dark .login-divider::before,.dark .login-divider::after{border-color:var(--gris-200)}
-
-/* ── 16. RESPONSIVE ── */
-@media(max-width:480px){
-  .nav-brand-text{display:none}
-  .nav-link span{display:none}
-  .nav-link{padding:.38rem .5rem;font-size:.7rem}
-  .btn-icon-nav{width:30px;height:30px;font-size:.82rem}
-  .btn-login-nav span{display:none}
-  .btn-login-nav{padding:.42rem .6rem}
-  .navbar{padding:0 .5rem}
-}
 
 @media(max-width:768px){
   .sidebar,.sb-toggle{display:none!important}
