@@ -105,7 +105,10 @@
       <div id="sec-editor" class="a-sec">
         <div class="sec-hdr">
           <div class="sec-title"><i class="fa-solid fa-map"></i> Editor de Rutas</div>
-          <button class="btn btn-primary btn-sm" onclick="saveNewRoute()"><i class="fa-solid fa-floppy-disk"></i> Guardar Ruta</button>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-outline btn-sm" onclick="showSec('rutas',null);clearEditorState()"><i class="fa-solid fa-arrow-left"></i> Volver a la lista</button>
+            <button class="btn btn-primary btn-sm" onclick="saveNewRoute()"><i class="fa-solid fa-floppy-disk"></i> Guardar Ruta</button>
+          </div>
         </div>
         <div class="route-editor">
           <div class="editor-panel">

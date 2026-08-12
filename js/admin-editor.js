@@ -263,8 +263,27 @@ function saveNewRoute() {
     stopDraw();
     updateCoordsUI();
     refreshAll();
+
+    // Redirigir a la lista de rutas
+    setTimeout(function() { showSec('rutas', document.querySelector('.a-lnk[onclick*="rutas"]')); }, 400);
   } catch (err) {
     console.error('saveNewRoute error:', err);
     toast('Error al guardar la ruta', 'error');
   }
+}
+
+/** Limpia el estado del editor sin guardar — usado al volver a la lista */
+function clearEditorState() {
+  try {
+    coordsIda = []; coordsVuelta = [];
+    tmpMarkers.forEach(function(m) { if (editorMap) editorMap.removeLayer(m); });
+    tmpMarkers = [];
+    if (polyIda && editorMap) { editorMap.removeLayer(polyIda); polyIda = null; }
+    if (polyVuelta && editorMap) { editorMap.removeLayer(polyVuelta); polyVuelta = null; }
+    stopDraw();
+    updateCoordsUI();
+    // Limpiar campos del formulario
+    var fields = ['re-nom','re-entrada','re-salida','re-costo','re-nota','re-paradas'];
+    fields.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+  } catch (e) { /* ignore */ }
 }
