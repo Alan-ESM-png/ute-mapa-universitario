@@ -239,7 +239,7 @@ DB.init().then(function() {
   rutas = DB.getRutas();
   // Re-renderizar si el mapa ya está listo
   if (mapReady) {
-    renderList(); // renderMarkers no existe - usamos renderList
+    Object.keys(mkMap).forEach(function(id) { if (mkMap[id] && map) map.removeLayer(mkMap[id]); }); mkMap = {}; edificios.forEach(function(e) { var m = L.marker([e.lat, e.lng], { icon: makeDivIcon(e), draggable: false, autoPan: true }).addTo(map).bindTooltip("<strong>" + e.nombre + "</strong><br><small style=\"color:#888\">" + e.tipo + "</small>", { sticky: true }); m.on("click", function(ev) { L.DomEvent.stopPropagation(ev); selectEdificio(e.id); }); mkMap[e.id] = m; }); renderList();
   }
 }).catch(function() { /* backend no disponible, usar datos locales */ });
 
@@ -317,7 +317,7 @@ function buildRutaLayer(r) {
   return lg;
 }
 
-if (typeof L !== 'undefined') { rutas.forEach(function(r) { rutaLayers[r.id] = buildRutaLayer(r); rutaVis[r.id] = false; }); }
+if (typeof L !== 'undefined') { rutas.forEach(function(r) { try { rutaLayers[r.id] = buildRutaLayer(r); rutaVis[r.id] = false; } catch(e) { /* skip malformed route */ } }); }
 
 /** Construye el panel colapsable de sub-rutas individuales en el sidebar. */
 function buildRutasSub() {
@@ -525,12 +525,12 @@ function animateCounter(el, target) {
  */
 function buildInfoContent(e) {
   const st = getBuildingStatus(e.horario);
-  const carreras = e.carreras.map(function(c) { return '<div class="i-carrera">' + c + '</div>'; }).join('');
-  const grupos = e.grupos.map(function(g) { return '<span class="i-grupo">' + g + '</span>'; }).join('');
-  const maestros = e.maestros.map(function(m) {
+  const carreras = (e.carreras||[]).map(function(c) { return '<div class="i-carrera">' + c + '</div>'; }).join('');
+  const grupos = (e.grupos||[]).map(function(g) { return '<span class="i-grupo">' + g + '</span>'; }).join('');
+  const maestros = (e.maestros||[]).map(function(m) {
     return '<div class="i-maestro"><div class="i-av">' + m.ini + '</div><div class="i-mname">' + m.nombre + '</div></div>';
   }).join('');
-  const tramites = e.tramites.map(function(t) {
+  const tramites = (e.tramites||[]).map(function(t) {
     return '<div class="i-tramite"><div class="i-tdot"></div>' + t + '</div>';
   }).join('');
   const coordBlock = sess.role === 'admin'

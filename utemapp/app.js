@@ -83,7 +83,7 @@ function renderMarkers(){
       if(!isFinite(e.lat)||!isFinite(e.lng))return;
       const ic=L.divIcon({className:'',html:'<div class="ute-mk2" style="background:'+(e.color||'#F4821F')+'">'+e.id+'</div>',iconSize:[34,34],iconAnchor:[17,17]});
       const m=L.marker([e.lat,e.lng],{icon:ic,autoPan:true}).addTo(map)
-        .on('click',()=>{try{openCard(e);map.flyTo([e.lat,e.lng],18,{duration:.5})}catch(ex){console.warn(ex)}});
+        .on('click',(ev)=>{try{L.DomEvent.stopPropagation(ev);openCard(e);map.flyTo([e.lat,e.lng],18,{duration:.5})}catch(ex){console.warn(ex)}});
       mkMap[e.id]=m
     })
   }catch(e){console.error(e);showBar('errorBar','Error al mostrar edificios.','#C62828',3000)}
@@ -95,6 +95,8 @@ const rutaLayers={};
 function buildRutaLayers(){
   if(!map)return;
   try{
+    // Limpiar capas viejas para evitar ghost lines en sync cross-tab
+    Object.keys(rutaLayers).forEach(function(k){if(rutaLayers[k]&&map.hasLayer(rutaLayers[k]))map.removeLayer(rutaLayers[k])});
     rutas.forEach(r=>{
       if(!r||!r.id)return;const lg=L.layerGroup();
       if(r.coords_ida&&r.coords_ida.length)L.polyline(r.coords_ida,{color:r.color||'#2E7D32',weight:4,dashArray:'10 6',opacity:.9}).addTo(lg);

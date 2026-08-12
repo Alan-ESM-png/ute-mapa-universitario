@@ -148,16 +148,16 @@ function renderSearchResults(q) {
   const bldResults = edificios.filter(function(e) {
     return (e.nombre||"").toLowerCase().indexOf(ql) !== -1 ||
       e.id.toLowerCase().indexOf(ql) !== -1 ||
-      e.carreras.some(function(c) { return c.toLowerCase().indexOf(ql) !== -1; }) ||
+      (e.carreras||[]).some(function(c) { return c.toLowerCase().indexOf(ql) !== -1; }) ||
       (e.maestros||[]).some(function(m) { return m.nombre.toLowerCase().indexOf(ql) !== -1; }) ||
       (e.tramites||[]).some(function(t) { return t.toLowerCase().indexOf(ql) !== -1; });
   });
   const rutResults = rutas.filter(function(r) {
     return r.nombre.toLowerCase().indexOf(ql) !== -1 ||
       (r.operador||"").toLowerCase().indexOf(ql) !== -1 ||
-      r.costo.toLowerCase().indexOf(ql) !== -1 ||
+      (r.costo||"").toLowerCase().indexOf(ql) !== -1 ||
       r.id.toLowerCase().indexOf(ql) !== -1 ||
-      r.paradas_ida.some(function(p) { return p.toLowerCase().indexOf(ql) !== -1; });
+      (r.paradas_ida||[]).some(function(p) { return p.toLowerCase().indexOf(ql) !== -1; });
   });
 
   if (!bldResults.length && !rutResults.length) {

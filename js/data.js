@@ -572,13 +572,13 @@ const DB = {
             return e;
           });
           this._set('ute_edificios', enriched);
-          console.log('✅ Edificios cargados desde MySQL (' + enriched.length + ')');
+          /* edificios cargados desde MySQL */
         }
 
         const rutas = await API.getRutas();
         if (rutas && rutas.length > 0) {
           this._set('ute_rutas', rutas);
-          console.log('✅ Rutas cargadas desde MySQL (' + rutas.length + ')');
+          /* rutas cargadas desde MySQL */
         }
       }
     } catch (e) {

@@ -73,6 +73,7 @@
 <script src="../js/auth.js"></script>
 <script>
 'use strict';
+(function() {
 var s = Auth.getSession();
 if (!s) { window.location.href = '../index.html'; return; }
 
@@ -109,7 +110,6 @@ document.getElementById('permsList').innerHTML = Object.entries(ALL_PERMS).map(f
   var tiene = myPerms.includes(k);
   return '<div class="acceso-item"><span class="acceso-ico"><i class="' + v.ico + '"></i></span><span class="acceso-label">' + v.lbl + '</span><span class="acceso-check">' + (tiene ? '<i class="fa-solid fa-check-circle" style="color:var(--verde)"></i>' : '<i class="fa-solid fa-lock" style="color:var(--gris-300)"></i>') + '</span></div>';
 }).join('');
-
 var MODULOS = {
   visitor:  [{ico:'fa-solid fa-map',lbl:'Mapa del Campus',url:'../index.html'},{ico:'fa-solid fa-bus',lbl:'Rutas de Transporte',url:'rutas.html'}],
   student:  [{ico:'fa-solid fa-map',lbl:'Mapa del Campus',url:'../index.html'},{ico:'fa-solid fa-bus',lbl:'Rutas de Transporte',url:'rutas.html'},{ico:'fa-solid fa-user',lbl:'Mi Perfil',url:'perfil.html'}],
@@ -119,6 +119,7 @@ var MODULOS = {
 document.getElementById('accesosList').innerHTML = (MODULOS[s.role] || MODULOS.visitor).map(function(m) {
   return '<div class="acceso-item"><span class="acceso-ico"><i class="' + m.ico + '"></i></span><span class="acceso-label">' + m.lbl + '</span><a href="' + m.url + '" style="font-size:.72rem;color:var(--naranja);font-weight:600">Ir <i class="fa-solid fa-arrow-right"></i></a></div>';
 }).join('');
+})();
 </script>
 </body>
 </html>
