@@ -13,6 +13,7 @@ let drawMode = null;
 let coordsIda = [], coordsVuelta = [];
 let polyIda = null, polyVuelta = null;
 let tmpMarkers = [];
+let editingRouteId = null; // ID de la ruta que se está editando (null = nueva)
 
 const getVal = id => { const el = $(id); return el ? (el.value || '').trim() : ''; };
 
@@ -114,18 +115,27 @@ function stopDraw() {
 }
 
 function clearCoords() {
-  if (!drawMode) { toast('Activa un modo de dibujo primero', 'info'); return; }
-  if (!confirm('Limpiar puntos de ' + drawMode.toUpperCase() + '?')) return;
-
-  // Eliminar marcadores y polilíneas del mapa
-  tmpMarkers.forEach(function(m) { if (editorMap) editorMap.removeLayer(m); });
-  tmpMarkers = [];
-
-  if (drawMode === 'ida') {
-    coordsIda = [];
-    if (polyIda && editorMap) { editorMap.removeLayer(polyIda); polyIda = null; }
+  // Si estamos en modo dibujo, limpiar solo ese sentido
+  if (drawMode) {
+    if (!confirm('Limpiar puntos de ' + drawMode.toUpperCase() + '?')) return;
+    tmpMarkers.forEach(function(m) { if (editorMap) editorMap.removeLayer(m); });
+    tmpMarkers = [];
+    if (drawMode === 'ida') {
+      coordsIda = [];
+      if (polyIda && editorMap) { editorMap.removeLayer(polyIda); polyIda = null; }
+    } else {
+      coordsVuelta = [];
+      if (polyVuelta && editorMap) { editorMap.removeLayer(polyVuelta); polyVuelta = null; }
+    }
   } else {
+    // Sin modo dibujo activo: limpiar AMBOS sentidos (IDA y VUELTA)
+    if (!coordsIda.length && !coordsVuelta.length) { toast('No hay puntos que limpiar', 'info'); return; }
+    if (!confirm('¿Limpiar TODOS los puntos de IDA y VUELTA?\n\nEsto borrará las líneas del mapa pero conservará la información de horarios, costos y paradas.')) return;
+    tmpMarkers.forEach(function(m) { if (editorMap) editorMap.removeLayer(m); });
+    tmpMarkers = [];
+    coordsIda = [];
     coordsVuelta = [];
+    if (polyIda && editorMap) { editorMap.removeLayer(polyIda); polyIda = null; }
     if (polyVuelta && editorMap) { editorMap.removeLayer(polyVuelta); polyVuelta = null; }
   }
   updateCoordsUI();
@@ -189,6 +199,7 @@ function loadRutaEditor(id) {
   showSec('editor', null);
   const r = DB.getRutas().find(function(x) { return x.id === id; });
   if (!r) return;
+  editingRouteId = id; // Marcar que estamos editando, no creando
   setTimeout(function() {
     try {
       // Limpiar estado anterior
@@ -223,14 +234,17 @@ function saveNewRoute() {
   try {
     const nombre = getVal('re-nom');
     if (!nombre) { toast('Escribe el nombre de la ruta', 'error'); return; }
-    if (coordsIda.length < 2) { toast('Necesitas al menos 2 puntos para IDA', 'error'); return; }
+    // Permitir guardar sin puntos — solo info textual
 
     const entrada = getVal('re-entrada').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
     const salida = getVal('re-salida').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
     const paradas = getVal('re-paradas').split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
+    const coordsIdaArr = coordsIda.map(function(p) { return [p.lat, p.lng]; });
+    const coordsVueltaArr = coordsVuelta.length > 0
+      ? coordsVuelta.map(function(p) { return [p.lat, p.lng]; })
+      : (coordsIdaArr.length > 0 ? coordsIdaArr.slice().reverse() : []);
 
-    const nueva = {
-      id: 'ruta-' + Date.now(),
+    const rutaData = {
       nombre: nombre,
       tipo: getVal('re-tipo') || 'publica',
       operador: 'UTE Escobedo',
@@ -242,19 +256,33 @@ function saveNewRoute() {
       nota: getVal('re-nota'),
       paradas_ida: paradas,
       paradas_vuelta: paradas.slice().reverse(),
-      coords_ida: coordsIda.map(function(p) { return [p.lat, p.lng]; }),
-      coords_vuelta: coordsVuelta.length > 1
-        ? coordsVuelta.map(function(p) { return [p.lat, p.lng]; })
-        : coordsIda.slice().reverse().map(function(p) { return [p.lat, p.lng]; })
+      coords_ida: coordsIdaArr,
+      coords_vuelta: coordsVueltaArr
     };
 
     const rs = DB.getRutas();
-    rs.push(nueva);
-    DB.saveRutas(rs);
-    logAct('Ruta "' + nombre + '" creada con ' + coordsIda.length + ' puntos', '#2E7D32');
-    toast('Ruta "' + nombre + '" guardada', 'success');
+
+    if (editingRouteId) {
+      // Actualizar ruta existente
+      const idx = rs.findIndex(function(r) { return r.id === editingRouteId; });
+      if (idx !== -1) {
+        rutaData.id = editingRouteId;
+        rs[idx] = rutaData;
+        DB.saveRutas(rs);
+        logAct('Ruta "' + nombre + '" actualizada (' + coordsIdaArr.length + ' pts)', '#1565C0');
+        toast('Ruta "' + nombre + '" actualizada', 'success');
+      }
+    } else {
+      // Crear nueva ruta
+      rutaData.id = 'ruta-' + Date.now();
+      rs.push(rutaData);
+      DB.saveRutas(rs);
+      logAct('Ruta "' + nombre + '" creada (' + coordsIdaArr.length + ' pts)', '#2E7D32');
+      toast('Ruta "' + nombre + '" guardada', 'success');
+    }
 
     // Limpiar estado
+    editingRouteId = null;
     coordsIda = []; coordsVuelta = [];
     tmpMarkers.forEach(function(m) { if (editorMap) editorMap.removeLayer(m); });
     tmpMarkers = [];
@@ -275,6 +303,7 @@ function saveNewRoute() {
 /** Limpia el estado del editor sin guardar — usado al volver a la lista */
 function clearEditorState() {
   try {
+    editingRouteId = null; // Resetear modo edición
     coordsIda = []; coordsVuelta = [];
     tmpMarkers.forEach(function(m) { if (editorMap) editorMap.removeLayer(m); });
     tmpMarkers = [];
